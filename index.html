@@ -1910,13 +1910,14 @@ function openNpc(){
 
 // ---------- loop ----------
 let lbT=20,achT=2,last=performance.now(),hudT=0,saveT=0;
+const _le=new Set();function loopErr(w,e){const m=w+': '+(e&&e.message||e)+(e&&e.stack?' | '+String(e.stack).split('\n').slice(0,3).join(' ← '):'');if(_le.has(m))return;_le.add(m);console.error(m);try{window.dispatchEvent(new ErrorEvent('error',{message:m}))}catch(x){}}
 function loop(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
   if(running){lbT-=dt;if(lbT<=0){lbT=60;lbSubmit()}}
   if(running&&!paused)tutUpdate();
-  if(running&&!paused){achT-=dt;if(achT<=0){achT=1;checkAch()}if(hitStop>0)hitStop-=dt;else update(dt);hudT-=dt;if(hudT<=0){syncHud();hudT=.08}saveT-=dt;if(saveT<=0){save();saveT=5;if(SV.intro)checkDaily()}}
-  render3d(dt);
   requestAnimationFrame(loop);
+  try{if(running&&!paused){achT-=dt;if(achT<=0){achT=1;checkAch()}if(hitStop>0)hitStop-=dt;else update(dt);hudT-=dt;if(hudT<=0){syncHud();hudT=.08}saveT-=dt;if(saveT<=0){save();saveT=5;if(SV.intro)checkDaily()}}}catch(e){loopErr('update',e)}
+  try{render3d(dt)}catch(e){loopErr('render',e)}
 }
 $('go').onclick=()=>{
   $('start').hidden=true;$('hud').hidden=false;$('ctrl').hidden=false;running=true;
