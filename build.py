@@ -4,7 +4,7 @@ import sys
 src=open('src/game.html',encoding='utf-8').read()
 TAG='<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>'
 assert src.count(TAG)==1,'three.js tag not found'
-inj=TAG+'\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>\n<script src="sb-config.js"></script>\n<script src="sb-shim.js"></script>'
+inj=TAG+'\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>\n<script src="sb-config.js"></script>\n<script src="sb-shim.js"></script>'
 out=src.replace(TAG,inj)
 for a,b in [
   ('排行榜要在 Claude 裡開啟、並登入帳號才看得到。','排行榜連線中…如果一直沒出現，請確認網路後重新整理。'),
