@@ -278,8 +278,9 @@ const ZONES=[
  {name:'雪山戶外場',s:39,x:1250,y:2000,w:1000,h:800,floor:'#dfe9f0',paint:'#5d8fbf',line:'#2f4f7a',mob:{n:'雪地前鋒',l:[39,49],col:'#4a7fd6'},boss:{n:'冰原巨人',lv:56,col:'#1f3f8a'},npc:'雪地嚮導',npcCol:'#7a4f2a',deco:'snow',apron:'#f4f8fb'},
  {name:'沙漠神殿',s:67,x:2650,y:2050,w:1050,h:800,floor:'#d9a95e',paint:'#9c4f1e',line:'#fff1cf',mob:{n:'神殿守衛',l:[67,87],col:'#e0902a'},boss:{n:'黃金法老',lv:96,col:'#b8860b'},npc:'考古學家',npcCol:'#6b8e23',deco:'desert',apron:'#e3bd76'},
  {name:'太空站球場',s:121,x:4050,y:-450,w:1000,h:850,floor:'#1a1440',paint:'#3a2a8a',line:'#53f3ff',mob:{n:'機械球員',l:[121,145],col:'#9aa7b8'},boss:{n:'銀河終極體',lv:170,col:'#4a5a70'},npc:'太空站長',npcCol:'#e8e8e8',deco:'space',apron:'#07061a'},
+ {name:'熔岩火山場',s:135,ch:5,x:4050,y:950,w:1000,h:850,floor:'#3a2a26',paint:'#b8321a',line:'#ffb347',mob:{n:'熔岩球員',l:[135,150],col:'#ff5a2a'},boss:{n:'熔岩魔王',lv:150,col:'#7a1a0a'},npc:'火山觀測員',npcCol:'#ff8a3d',deco:'volcano',apron:'#1e1410'},
 ];
-const ROADS=[[0,1],[0,2],[2,3],[1,4],[3,4],[5,0],[6,1],[7,2],[7,8],[8,3],[9,4]];
+const ROADS=[[0,1],[0,2],[2,3],[1,4],[3,4],[5,0],[6,1],[7,2],[7,8],[8,3],[9,4],[3,10],[9,10]];
 const WB={x0:-1650,y0:-1650,x1:5450,y1:3250};
 const ORDER=ZONES.map((z,i)=>i).sort((a,b)=>ZONES[a].s-ZONES[b].s);
 const MREQ=[0,30,100];
@@ -319,7 +320,7 @@ let hurtFx=0;
 const need=L=>Math.floor(40+L*L*3.2);
 
 // ---------- save ----------
-const defSave=()=>({lv:1,xp:0,coins:0,pts:0,st:{str:0,vit:0,shot:0,spd:0},pw:'none',own:['none'],mas:{none:0},quest:null,last:0,intro:0,story:0,legends:[],leg:null,inv:[],eq:{shoe:null,band:null,wrist:null},mute:false,tut:0,chests:null,nick:'',stats:{},ach:{},title:null,dun:null,pets:[],pet:null,petXp:{}});
+const defSave=()=>({lv:1,xp:0,coins:0,pts:0,st:{str:0,vit:0,shot:0,spd:0},pw:'none',own:['none'],mas:{none:0},quest:null,last:0,intro:0,story:0,legends:[],leg:null,inv:[],eq:{shoe:null,band:null,wrist:null},mute:false,tut:0,chests:null,nick:'',stats:{},ach:{},title:null,dun:null,pets:[],pet:null,petXp:{},p2:0});
 let SV=defSave();
 try{const s=JSON.parse(localStorage.getItem('hoopGrind')||'null');if(s&&s.lv)SV=Object.assign(defSave(),s)}catch(e){}
 if(SV.st&&SV.st.spd>100){SV.pts=(SV.pts||0)+SV.st.spd-100;SV._refund=SV.st.spd-100;SV.st.spd=100}
@@ -339,6 +340,7 @@ const LEG={
  stone:{who:'stone',zi:2,col:'#43e0c6',pas:'最大生命 +20%',sk:{n:'禁區之牆',t:'aoe',r:190,m:2.6,cd:10,fx:'freeze'}},
  star:{who:'star',zi:3,col:'#7fb3ff',pas:'所有傷害 +15%',sk:{n:'星河三分雨',t:'rain',cnt:12,r:70,m:3.2,cd:12}},
  all:{who:'all',zi:4,col:'#ffd34d',pas:'所有傷害再 +10%',sk:{n:'傳奇合擊',t:'aoe',r:280,m:6,cd:16}},
+ lotus:{who:'lotus',zi:10,col:'#ff3d5a',pas:'所有技能冷卻 -10%',sk:{n:'紅蓮爆裂',t:'rain',cnt:10,r:85,m:4.4,cd:12,fx:'burn'}},
 };
 const has=k=>SV.legends.includes(k);
 const SPK={
@@ -354,6 +356,9 @@ const SPK={
  shadow:{w:'「影子」',look:{skin:'#f1c9a5',hair:'#d94f2b',jersey:'#26202e',shorts:'#111',num:0,numCol:'#b98cff',shoe:'#b98cff'}},
  stone:{w:'「石柱」',look:{skin:'#c68857',hair:'#bbbbbb',jersey:'#2e6d4a',shorts:'#14562f',num:50,band:'#fff'}},
  star:{w:'「神射手」星河',look:{skin:'#e0ac80',hair:'#3b2414',jersey:'#3b6bff',shorts:'#1c2f7a',num:30,band:'#fff',shoe:'#7fb3ff'}},
+ lotus:{w:'「紅蓮」',look:{skin:'#f1c9a5',hair:'#b8321a',jersey:'#ff3d5a',shorts:'#2a0a10',num:8,numCol:'#ffd34d',band:'#ffd34d',shoe:'#ffd34d'}},
+ b5:{w:'熔岩魔王',look:{skin:'#5e3a24',hair:'#ff5a1a',jersey:'#7a1a0a',shorts:'#1a0a06',num:'K',numCol:'#ffb347',band:'#ff5a1a',angry:1,crown:1}},
+ volc:{w:'火山觀測員',look:{skin:'#e0ac80',hair:'#555',jersey:'#ff8a3d',shorts:'#2b2b33',cap:'#1a1008'}},
 };
 const PROLOGUE=[
  {s:'nar',t:'這座城市曾經到處都是籃球場。直到「黑潮聯盟」出現，佔領了所有球場，只准聽話的人打球。'},
@@ -399,7 +404,22 @@ const CH=[
   {s:'shadow',t:'小子，最後這招，是我們四個人一起教你的。'},
   {learn:'all'},
   {s:'nar',t:'黑潮聯盟解散了。城市裡的球場重新開放，到處又響起了運球的聲音。'},
-  {s:'nar',t:'全劇終，感謝遊玩！你可以繼續練到 Lv 150，收集所有球能力。'}],
+  {s:'nar',t:'第一部完結，感謝遊玩！不過……東邊的火山最近好像一直在冒黑煙。'}],
+ [{s:'b5',t:'不可能……我的熔岩，竟然被一顆籃球給澆熄了……'},
+  {s:'lotus',t:'哼，總算有人能把那傢伙打下來。'},
+  {s:'lotus',t:'我是「紅蓮」，以前是黑潮聯盟的王牌后衛，也是阿伯說的——第五位傳奇。'},
+  {s:'lotus',t:'離開聯盟以後，我就一直守在火山，等一個能讓我心服口服的對手。'},
+  {s:'lotus',t:'你的球，燒得比熔岩還燙。這招給你，好好用。'},
+  {learn:'lotus'},
+  {s:'shadow',t:'哈，連紅蓮都服了你，這下城裡沒人擋得住你了。'},
+  {s:'nar',t:'第二部完結！黑潮聯盟的殘黨全部投降，火山也安靜了下來。之後還會有新的篇章，敬請期待。'}],
+];
+const PART2=[
+ {s:'nar',t:'黑潮聯盟解散三個月後，城市東邊的火山突然冒出黑煙。'},
+ {s:'coach',t:'不好了！黑潮聯盟的殘黨躲進了「熔岩火山場」，還找來一個叫「熔岩魔王」的傢伙當老大。'},
+ {s:'coach',t:'還記得我說過有五位傳奇嗎？聽說第五位就住在火山裡，是個從來不收徒弟的后衛。'},
+ {s:'volc',t:'那裡的球員打球會在地上留下熔岩，踩到會燙傷，記得一直移動！'},
+ {s:'nar',t:'第二部主線：前往熔岩火山場（Lv 135 以上），擊倒熔岩魔王（Lv 150）。'},
 ];
 
 const bossRec=z=>Math.min(z.boss.lv-5,MAXLV);
@@ -407,17 +427,18 @@ const maxHp=()=>Math.round((100+SV.st.vit*12+SV.lv*4+gearSum('hp'))*(has('stone'
 const speed=()=>(170+Math.min(SV.st.spd,100)*1.3)*(has('lei')?1.1:1)*(1+gearSum('spd')/100);
 const dmgMul=()=>(has('star')?1.15:1)*(has('all')?1.1:1)*(1+gearSum('atk')/100);
 const basicDmg=()=>(8+SV.st.str*2+SV.lv)*dmgMul();
-const skillBase=()=>(10+SV.st.shot*2.2+SV.lv*1.2)*dmgMul()*(1+gearSum('skill')/100);
+const skillBase=()=>(10+SV.st.shot*2.2+SV.lv*1.2)*dmgMul()*(1+gearSum('skill')/100)*(1+petP('skill'));
 // ---------- gear ----------
-const RAR=[{n:'普通',c:'#d8d8d8',m:1},{n:'稀有',c:'#4aa3ff',m:1.6},{n:'史詩',c:'#b25cff',m:2.5},{n:'傳說',c:'#ffb020',m:4}];
+const RAR=[{n:'普通',c:'#d8d8d8',m:1},{n:'稀有',c:'#4aa3ff',m:1.6},{n:'史詩',c:'#b25cff',m:2.5},{n:'傳說',c:'#ffb020',m:4},{n:'神話',c:'#ff3d5a',m:5.5}];
+const MYTH={shoe:'熔岩戰靴',band:'紅蓮頭帶',wrist:'火山護腕'};
 const SLOT={shoe:{n:'球鞋',names:['飛翼球鞋','彈簧球鞋','閃電球鞋','雲朵球鞋']},band:{n:'頭帶',names:['汗水頭帶','專注頭帶','王者頭帶','流星頭帶']},wrist:{n:'護腕',names:['鐵壁護腕','射手護腕','火力護腕','黃金護腕']}};
 const STN={atk:'傷害',skill:'技能傷害',crit:'暴擊率',spd:'移速',hp:'生命'};
 function rollRar(b){const r=Math.random()+b;return r>1.17?3:r>.95?2:r>.68?1:0}
-function makeItem(lv,b){const sl=['shoe','band','wrist'][ri(0,2)],rar=rollRar(b||0),m=RAR[rar].m,st={};
+function makeItem(lv,b,force){const sl=['shoe','band','wrist'][ri(0,2)],rar=force!=null?force:rollRar(b||0),m=RAR[rar].m,st={};
   if(sl==='shoe'){st.spd=Math.round(3*m);st.hp=Math.round(lv*2.5*m)}
   if(sl==='band'){st.crit=Math.round(2*m);st.skill=Math.round(5*m)}
   if(sl==='wrist'){st.atk=Math.round(5*m);st.hp=Math.round(lv*1.2*m)}
-  return{id:Date.now().toString(36)+ri(0,99999),slot:sl,rar,lv,name:SLOT[sl].names[ri(0,3)],st}}
+  return{id:Date.now().toString(36)+ri(0,99999),slot:sl,rar,lv,name:rar>=4?MYTH[sl]:SLOT[sl].names[ri(0,3)],st}}
 const stText=it=>Object.entries(it.st).map(([k,v])=>`${STN[k]} +${v}${k==='hp'?'':'%'}`).join('・');
 const eqItem=sl=>SV.inv.find(i=>i.id===SV.eq[sl]);
 function gearSum(k){let t=0;for(const sl of ['shoe','band','wrist']){const it=eqItem(sl);if(it&&it.st[k])t+=it.st[k]}return t}
@@ -425,7 +446,7 @@ const itemPrice=it=>Math.round((50+it.lv*15)*RAR[it.rar].m*RAR[it.rar].m);
 function gainItem(it){
   if(SV.inv.length>=30){const p=itemPrice(it);SV.coins+=p;toast(`背包滿了，自動賣出 ${it.name}（+${fmtN(p)} 金幣）`);return}
   SV.inv.push(it);toast(`獲得［${RAR[it.rar].n}］${it.name}`,it.rar>=2);sfx(it.rar>=3?'legend':'pickup');
-  if(it.rar>=3)stAdd('legends');if(it.rar>=3)banner('傳說裝備！',`你撿到了「${it.name}」`);
+  if(it.rar>=3)stAdd('legends');if(it.rar>=4){stAdd('myth');banner('神話裝備！',`你撿到了「${it.name}」，全遊戲最強的裝備`)}else if(it.rar>=3)banner('傳說裝備！',`你撿到了「${it.name}」`);
   const cur=eqItem(it.slot);if(!cur||cur.rar<it.rar||(cur.rar===it.rar&&cur.lv<it.lv)){SV.eq[it.slot]=it.id;toast(`已自動換上 ${it.name}`)}
   save()}
 const atkRate=()=>Math.max(.24,.45-Math.min(SV.st.spd,100)*.002);
@@ -503,7 +524,29 @@ function tutUpdate(){const box=$('tut');document.querySelectorAll('.tutHL').forE
   if(stp.ok()){sfx('pickup');SV.tut++;TS.k0=st('kills');if(SV.tut>TUT.length){SV.tut=99;const c=1000;SV.coins+=c;banner('新手導覽完成！',`+${fmtN(c)} 金幣・接下來照左上角的「練等建議」去練等吧`);sfx('legend');save();box.hidden=true;return}save();return}
   box.hidden=false;$('tutN').textContent=`新手導覽 ${SV.tut}/${TUT.length}`;$('tutT').textContent=stp.t;if(stp.hl){const el=$(stp.hl);if(el)el.classList.add('tutHL')}}
 let atkPrev=false,DUEL_RIM=null;const WDP={ph:0};
-const mvMul=()=>duel?((duel.pstun>0||duel.pact)?0:duel.meter?.35:1):1;
+const mvMul=()=>duel?((duel.three||duel.pstun>0||duel.pact)?0:duel.meter?.35:1):1;
+// ---------- 三分球大賽：5 個位置各 5 球，最後一顆是彩球（2 分），抓時機條出手 ----------
+const TP_ANG=[-1.15,-.58,0,.58,1.15];
+function startThree(){if(dun||duel||MP.pvp)return;
+  duel={three:1,me:0,ai:0,t:75,rv:{n:'三分大賽',sty:'all',tm:0,skill:1},ax:-99999,ay:-99999,az:0,poss:'me',shot:null,stealCd:99,wait:1,pending:0,amv:0,aw:0,aiT:0,tx:0,ty:0,clock:99,meter:null,mvCd:99,pstun:0,astun:0,hotMe:0,hotAi:0,aiMvCd:99,pact:null,aact:null,rim:0,dp:{ph:0},ap:{ph:0},spot:0,ball:0,made:0};
+  threeSpot();closeAll();banner('三分球大賽開始！','5 個位置各投 5 球・金色彩球 2 分・限時 75 秒');sfx('event');TX.push({x:DUEL.x+DUEL.w/2,y:DUEL.y+DUEL.h+20,s:'主播：三分大賽，射手們準備！',col:'#ffd34d',t:2.2,big:1})}
+function threeSpot(){const a=TP_ANG[duel.spot];duel.px=HOOP.x-Math.cos(a)*300;duel.py=HOOP.y+Math.sin(a)*300;P.x=duel.px;P.y=duel.py;P.z=0;P.vz=0;
+  P.face=Math.atan2(HOOP.y-P.y,HOOP.x-P.x);camYaw=Math.atan2(-(HOOP.x-P.x),-(HOOP.y-P.y))}
+function threeUpdate(dt){duel.t-=dt;if(duel.rim>0)duel.rim=Math.max(0,duel.rim-dt*2.5);if(duel.wait>0)duel.wait-=dt;if(duel.cele)duel.cele.t-=dt;
+  if(!duel.pact){P.x=duel.px;P.y=duel.py}
+  if(duel.pact)stepAct(duel.pact,dt);if(!duel)return;
+  if(duel.meter){const m=duel.meter;m.v+=dt*.85*m.dir;if(m.v>=1){m.v=1;m.dir=-1}if(m.v<=0&&m.dir<0){duel.meter=null;startShot('me','bad')}}
+  if(duel.shot){duel.shot.t+=dt;if(duel.shot.t>=duel.shot.dur)finishShot();if(!duel)return}
+  if(duel.t<=0&&!duel.shot&&!duel.pact)endDuel()}
+function threeScore(s){const money=duel.ball===4,pts=money?2:1;
+  if(s.make){duel.me+=pts;duel.made++;duel.hotMe++;duel.cele={who:'me',t:.6};TX.push({x:HOOP.x,y:HOOP.y-70,s:money?'彩球命中！+2':['唰！','空心！','進了！'][ri(0,2)],col:money?'#ffd34d':'#ffffff',t:1,big:1});burst(HOOP.x,HOOP.y,money?'#ffd34d':'#ff7a1a',money?24:12);sfx(money?'level':'coin')}
+  else{duel.hotMe=0;TX.push({x:HOOP.x,y:HOOP.y-70,s:'沒進',col:'#cccccc',t:.8});sfx('throw')}
+  duel.ball++;duel.wait=.3;
+  if(duel.ball>=5){duel.ball=0;duel.spot++;if(duel.spot>=5){endDuel();return}threeSpot();TX.push({x:P.x,y:P.y-50,s:`第 ${duel.spot+1} 個位置`,col:'#43e0c6',t:1,big:1})}}
+function threeEnd(d,quit){if(quit){toast('你離開了三分大賽');return}
+  const sc=d.me,old=st('tpBest'),c=Math.round((60+SV.lv*8)*sc);SV.coins+=c;if(sc>old)SV.stats.tpBest=sc;
+  banner(`三分大賽結束：${sc} 分`,`投進 ${d.made}/25 球・+${fmtN(c)} 金幣${sc>old&&sc>0?'・新紀錄！':`・最佳 ${Math.max(old,sc)} 分`}${sc>=18?'・額外獎勵裝備':''}`);sfx('chest');
+  if(sc>=18)gainItem(makeItem(SV.lv,.25));save()}
 function duelRival(){const w=st('duelWins'),R=[{n:'街角阿豪',sty:'all'},{n:'籃下小霸王',sty:'drive'},{n:'後仰射手',sty:'shoot'},{n:'鬼影控衛',sty:'all'},{n:'鬥牛之王',sty:'all'}],ri0=Math.min(4,Math.floor(w/3)),r=R[ri0];
   return{n:r.n,sty:r.sty,tm:ri0,skill:Math.min(1.3,.82+w*.05)}}
 const STY={all:'全能型',drive:'切入型（愛灌籃）',shoot:'射手型（愛投兩分）'};
@@ -547,7 +590,7 @@ function stepAct(a,dt){a.t+=dt;const me=a.who==='me',e=Math.min(1,a.t/(a.dur*.62
       if(a.k==='dunk'){duel.rim=a.make?1:.6;shake=.3}}}
   if(a.t>=a.dur){if(me){P.z=0;duel.pact=null}else{duel.az=0;duel.aact=null}
     if(a.blocked){duel.wait=.8;resetPoss(me?'ai':'me')}}}
-function finishShot(){const s=duel.shot,me=s.who==='me';duel.shot=null;
+function finishShot(){const s=duel.shot,me=s.who==='me';duel.shot=null;if(duel.three){threeScore(s);return}
   if(s.make){duel.cele={who:s.who,t:1.1};if(me){duel.me+=s.pts;duel.hotMe++;duel.hotAi=0}else{duel.ai+=s.pts;duel.hotAi++;duel.hotMe=0}
     const line=s.k==='dunk'?['暴力灌籃！','把籃框都拉彎了！','爆扣！'][ri(0,2)]:s.k==='layup'?['漂亮的上籃','輕鬆放進','擦板得分'][ri(0,2)]:s.pts===2?['超遠兩分！','三分線外命中！'][ri(0,1)]:['空心入網！','穩穩命中'][ri(0,1)];
     TX.push({x:HOOP.x,y:HOOP.y-70,s:line,col:me?'#ffd34d':'#ff6b80',t:1.3,big:1});burst(HOOP.x,HOOP.y,'#ffd34d',s.k==='dunk'?30:16);sfx(me?'level':'hurt');
@@ -558,13 +601,14 @@ function stealBall(byMe){if(byMe){TX.push({x:P.x,y:P.y-40,s:'抄截！',col:'#ff
   else{TX.push({x:duel.ax,y:duel.ay-40,s:'球被抄走了！',col:'#ff6b80',t:1,big:1});duel.poss='ai';duel.meter=null;aiTarget()}
   sfx('crit');duel.wait=.35;duel.clock=16}
 function duelAct(){if(!duel||duel.shot||duel.wait>0||duel.pact||duel.pstun>0)return;
+  if(duel.three){if(duel.t<=0)return;if(!duel.meter){duel.meter={v:0,dir:1};sfx('jump');return}const v=duel.meter.v;duel.meter=null;startShot('me',v>=.68&&v<=.9?'perfect':v>=.48&&v<=.98?'good':'bad');return}
   if(duel.poss==='me'){const d=Math.hypot(HOOP.x-P.x,HOOP.y-P.y);
     if(d<210){duel.meter=null;startShot('me');return}
     if(!duel.meter){duel.meter={v:0,dir:1};sfx('jump');return}
     const v=duel.meter.v;duel.meter=null;startShot('me',v>=.68&&v<=.9?'perfect':v>=.48&&v<=.98?'good':'bad');return}
   if(duel.aact&&duel.aact.released)return;
   if(Math.hypot(P.x-duel.ax,P.y-duel.ay)<75&&duel.stealCd<=0){duel.stealCd=.8;if(!duel.aact&&Math.random()<.42)stealBall(true);else TX.push({x:P.x,y:P.y-40,s:'沒抄到',col:'#cccccc',t:.7})}}
-function duelMove(){if(!duel||duel.shot||duel.wait>0||duel.mvCd>0||duel.pstun>0||duel.pact)return;duel.mvCd=2.5;sfx('dash');
+function duelMove(){if(!duel||duel.three||duel.shot||duel.wait>0||duel.mvCd>0||duel.pstun>0||duel.pact)return;duel.mvCd=2.5;sfx('dash');
   if(duel.poss==='me'){const a=Math.atan2(HOOP.y-P.y,HOOP.x-P.x)+(Math.random()<.5?1:-1)*Math.PI/2;
     P.x=clamp(P.x+Math.cos(a)*110,DUEL.x+40,DUEL.x+DUEL.w-40);P.y=clamp(P.y+Math.sin(a)*110,DUEL.y+40,DUEL.y+DUEL.h-40);duel.dp.cross=.35;duel.meter=null;
     if(Math.hypot(duel.ax-P.x,duel.ay-P.y)<150&&Math.random()<.4/duel.rv.skill+.2){duel.astun=1.3;TX.push({x:duel.ax,y:duel.ay-50,s:'腳踝終結者！',col:'#ffd34d',t:1.2,big:1});sfx('crit');shake=.2}
@@ -573,7 +617,7 @@ function duelMove(){if(!duel||duel.shot||duel.wait>0||duel.mvCd>0||duel.pstun>0|
     P.x+=Math.cos(a)*L;P.y+=Math.sin(a)*L;
     if(Math.hypot(duel.ax-P.x,duel.ay-P.y)<80&&!duel.aact&&Math.random()<.55)stealBall(true);else{duel.pstun=.8;TX.push({x:P.x,y:P.y-40,s:'撲空了！',col:'#cccccc',t:.8})}}}
 function moveAI(tx,ty,sp,dt){const dx=tx-duel.ax,dy=ty-duel.ay,d=Math.hypot(dx,dy);duel.amv=d>4;if(d>4){const k=Math.min(d,sp*dt)/d;duel.ax+=dx*k;duel.ay+=dy*k;duel.aw=(duel.aw||0)+dt*11}}
-function duelUpdate(dt){
+function duelUpdate(dt){if(duel.three){threeUpdate(dt);return}
   duel.t-=dt;duel.stealCd-=dt;duel.mvCd-=dt;duel.aiMvCd-=dt;if(duel.pstun>0)duel.pstun-=dt;if(duel.astun>0)duel.astun-=dt;if(duel.rim>0)duel.rim=Math.max(0,duel.rim-dt*2.5);
   if(duel.dp.cross>0)duel.dp.cross-=dt;if(duel.wait>0)duel.wait-=dt;if(duel.cele)duel.cele.t-=dt;
   chantT-=dt;if(chantT<=0){chantT=rnd(5,8);const cs=duel.poss==='ai'?'全場：防守！防守！':['全場：加油！加油！','主播：好戲上場了！','全場：練等王！練等王！','主播：看他怎麼破解！'][ri(0,3)];TX.push({x:DUEL.x+DUEL.w/2+rnd(-200,200),y:DUEL.y+DUEL.h+30,s:cs,col:'#ffd34d',t:1.8})}
@@ -674,6 +718,7 @@ function pvpEnd(why){const pv=MP.pvp;if(!pv)return;MP.pvp=null;try{pv.r.leave()}
   $('atk').innerHTML=`投籃<small class="nx">${COMBO[P.combo]}</small>`;
   if(why==='left'&&!pv.res)toast('對手離開了，鬥牛結束');if(why==='nohost')toast('找不到這個房號，請確認房主已經開房');if(why==='quit')toast('你離開了連線鬥牛');if(why==='err')toast('連線中斷了')}
 function endDuel(quit){if(!duel)return;const d=duel;duel=null;setTimeout(refreshSkills,0);$('atk').innerHTML=`投籃<small class="nx">${COMBO[P.combo]}</small>`;
+  if(d.three){threeEnd(d,quit);return}
   if(quit){toast('你離開了鬥牛');return}
   if(d.me>d.ai){const c=Math.round(500+SV.lv*250),x=Math.round(need(SV.lv)*.35);stAdd('duelWins');SV.coins+=c;banner(`鬥牛勝利！${d.me} : ${d.ai}`,`打敗 ${d.rv.n}・+${fmtN(c)} 金幣・+${fmtN(x)} XP`);sfx('legend');gainXp(x);if(Math.random()<.4)gainItem(makeItem(SV.lv,.15))}
   else if(d.me===d.ai){const c=Math.round(200+SV.lv*80);SV.coins+=c;banner(`平手 ${d.me} : ${d.ai}`,`+${fmtN(c)} 金幣`)}
@@ -739,6 +784,9 @@ const ACH=[
  {id:'d10',n:'鬥牛之王',d:'贏得 10 場鬥牛',k:'duelWins',v:10,c:30000},{id:'bl5',n:'火鍋專賣店',d:'鬥牛中蓋火鍋 5 次',k:'blocks',v:5,c:8000},
  {id:'pet1',n:'毛孩夥伴',d:'擁有第 1 隻寵物',k:'pets',v:1,c:3000},{id:'pet20',n:'最佳拍檔',d:'任一寵物練到 Lv 20',k:'petMax',v:20,c:40000},
  {id:'w5',n:'地下城勇者',d:'地下城撐過 5 波',k:'dunBest',v:5,c:8000},{id:'w15',n:'深淵行者',d:'地下城撐過 15 波',k:'dunBest',v:15,c:40000},
+ {id:'st6',n:'火山英雄',d:'完成第二部主線',k:'story',v:6,c:100000},{id:'tp15',n:'神準射手',d:'三分大賽拿到 15 分',k:'tpBest',v:15,c:10000},
+ {id:'tp25',n:'三分王',d:'三分大賽拿到 25 分',k:'tpBest',v:25,c:50000},{id:'gb1',n:'金球獵人',d:'抓到 1 隻金球精靈',k:'goldKills',v:1,c:8000},
+ {id:'gb10',n:'黃金收藏家',d:'抓到 10 隻金球精靈',k:'goldKills',v:10,c:60000},{id:'my1',n:'神話降臨',d:'撿到一件神話裝備',k:'myth',v:1,c:50000},
 ];
 const statV=k=>k==='lv'?SV.lv:k==='story'?SV.story:k==='pets'?SV.pets.length:k==='petMax'?Math.max(0,...SV.pets.map(petLv)):st(k);
 function checkAch(){for(const a of ACH){if(SV.ach[a.id]||statV(a.k)<a.v)continue;SV.ach[a.id]=1;SV.coins+=a.c;
@@ -749,9 +797,10 @@ function bossAI(e,dt,d){
   e.slamT-=dt;if(e.slamT<=0&&!P.dead){e.slamT=e.phase>1?2.4:3.4;TL.push({x:P.x,y:P.y,r:95,t:1.1,T:1.1,dmg:e.dmg*1.5})}
   if(e.phase===1&&e.hp<e.mhp*.5){e.phase=2;e.sp*=1.35;TX.push({x:e.x,y:e.y-40,s:'暴走！',col:'#ff4560',t:1.5,big:1});banner(`${e.name} 暴走了！`,'攻擊變快，還會叫小弟幫忙');sfx('boss');shake=.4}
   e.volT-=dt;if(e.volT<=0&&d<520){e.volT=e.phase>1?3.2:5;throwAt(e,P.x,P.y,e.phase>1?7:5)}
-  e.patT=(e.patT==null?4:e.patT)-dt;if(e.patT<=0&&d<620){e.patT=e.phase>1?4.5:6.5;const pk=ri(0,2);
+  e.patT=(e.patT==null?4:e.patT)-dt;if(e.patT<=0&&d<620){e.patT=e.phase>1?4.5:6.5;const pk=ri(0,e.zi===10&&!e.dg?3:2);
     if(pk===0){SW.push({x:e.x,y:e.y,r:e.r,v:270,max:460,dmg:e.dmg*1.1,hit:false});if(!bossHint){bossHint=1;toast('看到地上擴散的衝擊波，按「跳」跳過去！',1)}}
     else if(pk===1)ringShot(e,e.phase>1?16:12);
+    else if(pk===3){for(let k=0;k<(e.phase>1?7:5);k++)HZ.push({x:P.x+rnd(-170,170),y:P.y+rnd(-170,170),r:58,t:4.5,dmg:e.dmg*.32,tick:.9});TX.push({x:e.x,y:e.y-50,s:'熔岩噴發！快離開橘色地面',col:'#ff5a1a',t:1.3,big:1})}
     else{for(let k=0;k<(e.phase>1?6:4);k++)lob(e,P.x+rnd(-140,140),P.y+rnd(-140,140),70,e.dmg*.9);TX.push({x:e.x,y:e.y-50,s:'流星雨！',col:'#ff9a3d',t:1,big:1})}sfx('boss')}
   e.sumT-=dt;if(e.sumT<=0&&d<600){e.sumT=e.phase>1?10:14;if(EN.filter(m=>m.temp&&!m.dead).length<10)for(let k=0;k<3;k++)summon(e)}
 }
@@ -834,6 +883,8 @@ function kill(e,src){
   petKill();
   const q=SV.quest;
   if(q&&q.zi===e.zi&&(q.boss===e.boss)){q.have++;if(q.have>=q.need)completeQuest();else renderQuest()}
+  if(e.gold){stAdd('goldKills');gainItem(makeItem(e.lv,.5,Math.random()<.06?4:null));banner('抓到金球精靈了！',`+${fmtN(ecn)} 金幣・高級裝備一件`);sfx('legend');if(EVT&&EVT.k==='gold'){EVT.caught=1;EVT.t=0}}
+  if(e.boss&&e.zi===10&&!e.dg&&Math.random()<.3)LOOT.push({x:e.x+30,y:e.y,it:makeItem(e.lv,0,4),t:90});
   if(e.boss){toast(`擊倒 ${e.name}！ +${fmtN(e.coin)} 金幣`,1);
     const notOwned=Object.keys(POW).filter(k=>!SV.own.includes(k));
     if(notOwned.length&&Math.random()<.1){const k=notOwned[ri(0,notOwned.length-1)];SV.own.push(k);SV.mas[k]=SV.mas[k]||0;toast(`${e.name} 掉落了「${POW[k].n}」！到選單裝備`,1)}
@@ -903,6 +954,7 @@ function hurtP(d){
 const COMBO=['快傳','彈傳','跳投'];
 // 更新日誌：最新的放最前面
 const CHANGELOG=[
+ {v:'2026-10-26',t:'第二部主線開放！新地圖「熔岩火山場」（Lv 135+）：熔岩球員會在地上留下燙腳的熔岩、新王者「熔岩魔王」會熔岩噴發；打倒他就能見到第五位傳奇「紅蓮」，學會新傳奇技「紅蓮爆裂」（被動：技能冷卻 -10%）。新增最高稀有度「神話裝備」、新寵物「焰焰・火蜥蜴」（技能傷害 +10%）、新世界事件「金球精靈」（追到牠有大獎）、鬥牛場新小遊戲「三分球大賽」，以及 6 個新成就。'},
    {v:'2026-10-25',t:'鬥牛場升級成「練等王職籃館」：木地板、LED 跑馬燈、計分大螢幕、觀眾席、啦啦隊和主播；對手各有自己的球隊球衣。動作全部重做：跳投有屈膝起跳和出手跟隨、上籃單腳抬膝單手放、灌籃會蓄力甩臂爆扣再掛框，防守會壓低張手、跳起封蓋，進球會慶祝。另外新增「成績碼」：沒辦法自動上榜的朋友可以產生成績碼給遊戲擁有者幫忙登記。'},
  {v:'2026-10-25',t:'左上角「線上 N 人」可以點開，看現在誰在線上、在哪個場地，還有最近來過的玩家。'},
  {v:'2026-10-25',t:'新手導覽（6 個步驟帶你學會移動、投籃、技能、跳躍、接任務和選單）；敵人攻擊更多樣：跳殺型會跳過來砸地、砲手會從遠處丟炸彈、近戰會連擊，菁英怪多了火焰／冰霜／分裂／疾風詞綴；王者新增衝擊波（要跳過）、環狀彈幕和流星雨；地下城怪物等級最高 150，越深層越硬。'},
@@ -950,11 +1002,15 @@ function openChest(c){const t=dstr(new Date());if(!SV.chests||SV.chests.date!==t
   const z=ZONES[c.zi],lv=z.mob.l[1],coin=Math.round(300+lv*110);SV.coins+=coin;sfx('chest');burst(c.x,c.y,'#ffd34d',26,400);
   text(c.x,c.y-20,`+${fmtN(coin)} 金幣`,'#ffd34d',1);toast(`打開${z.name}的寶箱！+${fmtN(coin)} 金幣`,1);
   if(Math.random()<.6)gainItem(makeItem(lv,.2));dailyProg('chest',1);stAdd('chests');save()}
-const EVTS=[{k:'coin',n:'金幣雨',d:30,desc:'30 秒內天上一直掉金幣，快去撿！'},{k:'xp',n:'雙倍經驗',d:60,desc:'60 秒內打怪經驗值加倍'},{k:'elite',n:'菁英入侵',d:90}];
-function startEvent(){const ev=EVTS[ri(0,2)];EVT={k:ev.k,n:ev.n,t:ev.d,T:ev.d};let sub=ev.desc;
+const EVTS=[{k:'coin',n:'金幣雨',d:30,desc:'30 秒內天上一直掉金幣，快去撿！'},{k:'xp',n:'雙倍經驗',d:60,desc:'60 秒內打怪經驗值加倍'},{k:'elite',n:'菁英入侵',d:90},{k:'gold',n:'金球精靈',d:50}];
+function startEvent(){const ev=EVTS[ri(0,EVTS.length-1)];EVT={k:ev.k,n:ev.n,t:ev.d,T:ev.d};let sub=ev.desc;
   if(ev.k==='elite'){const zi=recZone(SV.lv),z=ZONES[zi];EVT.zi=zi;
     for(let i=0;i<4;i++){const m={zi,boss:false,temp:true};resetEnemy(m);makeElite(m,'入侵菁英・');m.name='入侵菁英・'+z.mob.n;EN.push(m)}
     sub=`4 隻菁英出現在${z.name}，打倒一定掉裝備！`}
+  if(ev.k==='gold'){const zi=recZone(SV.lv),z=ZONES[zi];EVT.zi=zi;const m={zi,boss:false,temp:true};resetEnemy(m);
+    const hx=z.x+z.w*rnd(.35,.65),hy=z.y+z.h*rnd(.35,.65);
+    Object.assign(m,{type:'runner',gold:1,name:'金球精靈',col:'#ffd34d',hp:m.mhp*6,mhp:m.mhp*6,dmg:0,sp:Math.max(150,speed()*.78),xp:m.xp*12,coin:m.coin*40,x:hx,y:hy,hx,hy,tx:hx,ty:hy});EN.push(m);
+    sub=`金球精靈出現在${z.name}！牠會逃跑，50 秒內抓到有大量金幣和高級裝備`}
   banner(`世界事件：${EVT.n}`,sub);sfx('event')}
 function banner(t,sub){const b=$('banner');b.innerHTML=`<b>${t}</b>${sub?`<span>${sub}</span>`:''}`;b.hidden=false;b.classList.remove('show');void b.offsetWidth;b.classList.add('show');clearTimeout(banner.tm);banner.tm=setTimeout(()=>b.hidden=true,3800)}
 // ---------- sound (synthesized, starts after first tap) ----------
@@ -1013,7 +1069,7 @@ function useSkill(i){
   else if(sk.t==='pull'){
     const x=tg?tg.x:P.x+Math.cos(a)*150,y=tg?tg.y:P.y+Math.sin(a)*150;
     AR.push({x,y,r:sk.r,t:sk.dur,T:sk.dur,tt:0,dmg:base,pull:sk.pull,fx:sk.fx,col,end:sk.end?skillBase()*sk.end:0})}
-  P.cd[i]=sk.cd;dailyProg('skill',1);sfx('skill');
+  P.cd[i]=sk.cd*(has('lotus')?.9:1);dailyProg('skill',1);sfx('skill');
 }
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const masMul=()=>1+Math.min(.3,Math.max(0,(SV.mas[SV.pw]||0)-100)/1000);
@@ -1023,6 +1079,7 @@ const PETS={
  cat:{n:'喵扣',sp:'街頭貓',lv:20,price:15000,col:'#5a5f6e',pas:'暴擊率 +5%',k:'crit',v:.05,desc:'夜市長大的野貓，出手又快又準。'},
  owl:{n:'夜梟',sp:'貓頭鷹',lv:45,price:40000,col:'#9a7650',pas:'經驗值 +10%',k:'xp',v:.1,fly:1,desc:'在空中盤旋，從上面丟球砸人。'},
  turtle:{n:'鐵殼',sp:'烏龜',lv:70,price:80000,col:'#3f8a4a',pas:'受到的傷害 -10%',k:'def',v:.1,desc:'背著籃球紋的殼，打中的敵人會變慢。'},
+ lizard:{n:'焰焰',sp:'火蜥蜴',lv:100,price:200000,col:'#ff6a2a',pas:'技能傷害 +10%',k:'skill',v:.1,desc:'從火山撿回來的小蜥蜴，吐出的火球會讓敵人燒起來。'},
 };
 const petLv=k=>Math.min(20,1+Math.floor(Math.sqrt((SV.petXp[k]||0)/6)));
 const petP=kind=>{const p=SV.pet&&PETS[SV.pet];return p&&p.k===kind?p.v:0};
@@ -1036,7 +1093,7 @@ function petUpdate(dt){const k=SV.pet,p=k&&PETS[k];if(!p||!P)return;
   if(duel||P.dead)return;PET.atkT-=dt;if(PET.atkT>0)return;
   const tg=nearest(PET.x,PET.y,330);if(!tg){PET.atkT=.3;return}
   const lv=petLv(k),a=Math.atan2(tg.y-PET.y,tg.x-PET.x);PET.face=a;PET.atkT=Math.max(.8,1.5-lv*.03);
-  PR.push({x:PET.x,y:PET.y,vx:Math.cos(a)*560,vy:Math.sin(a)*560,r:7,dmg:basicDmg()*(.3+.035*lv),life:.75,pierce:1,hits:new Set(),col:p.col,src:'pet',spin:0,fx:k==='turtle'?'slow':null,crit:Math.random()<.08,tr:[]});
+  PR.push({x:PET.x,y:PET.y,vx:Math.cos(a)*560,vy:Math.sin(a)*560,r:7,dmg:basicDmg()*(.3+.035*lv),life:.75,pierce:1,hits:new Set(),col:p.col,src:'pet',spin:0,fx:k==='turtle'?'slow':k==='lizard'?'burn':null,crit:Math.random()<.08,tr:[]});
   if(k==='cat'&&Math.random()<.35)PR.push({x:PET.x,y:PET.y,vx:Math.cos(a+.15)*560,vy:Math.sin(a+.15)*560,r:6,dmg:basicDmg()*(.2+.02*lv),life:.75,pierce:1,hits:new Set(),col:'#ffd34d',src:'pet',spin:0,tr:[]})}
 
 // ---------- update ----------
@@ -1074,10 +1131,11 @@ function update(dt){
     const dx=P.x-e.x,dy=P.y-e.y,d=Math.hypot(dx,dy)||1;
     const hd=Math.hypot(e.x-e.hx,e.y-e.hy);
     if(!P.dead&&!e.ret&&d<(e.boss?260:190))e.aggro=true;
-    if(e.aggro&&(hd>700||P.dead)){e.aggro=false;e.ret=true}
+    if(e.aggro&&e.type!=='runner'&&(hd>700||P.dead)){e.aggro=false;e.ret=true}
     if(e.ret){const hx=e.hx-e.x,hy=e.hy-e.y,h=Math.hypot(hx,hy)||1;e.x+=hx/h*e.sp*1.6*dt;e.y+=hy/h*e.sp*1.6*dt;if(h<15){e.ret=false;e.hp=e.mhp}}
     else if(e.aggro){
-      if(e.dash>0){e.dash-=dt;e.x+=e.dvx*dt;e.y+=e.dvy*dt;if(!e.dhit&&d<e.r+P.r+14&&(P.z||0)<40){e.dhit=1;hurtP(e.dmg*1.4)}}
+      if(e.type==='runner'){const k=d<430?1:0,zz=Math.sin(T*3+e.num)*.6;e.x-=(dx/d-dy/d*zz)*k*sp*dt;e.y-=(dy/d+dx/d*zz)*k*sp*dt;if(Math.random()<dt*2)burst(e.x,e.y-10,'#ffd34d',2,120)}
+      else if(e.dash>0){e.dash-=dt;e.x+=e.dvx*dt;e.y+=e.dvy*dt;if(!e.dhit&&d<e.r+P.r+14&&(P.z||0)<40){e.dhit=1;hurtP(e.dmg*1.4)}}
       else if(e.chW>0){e.chW-=dt;if(e.chW<=0){const a=Math.atan2(e.cty-e.y,e.ctx-e.x);e.dvx=Math.cos(a)*850;e.dvy=Math.sin(a)*850;e.dash=.4;e.dhit=0;sfx('dash')}}
       else if(e.leap){const L=e.leap;L.t+=dt;const k=Math.min(1,L.t/L.T);e.x=L.sx+(L.tx-L.sx)*k;e.y=L.sy+(L.ty-L.sy)*k;e.lz=Math.sin(k*Math.PI)*140;if(k>=1){e.leap=null;e.lz=0;burst(e.x,e.y,e.col,14);shake=Math.max(shake,.15)}}
       else if(e.type==='leaper'&&e.freeze<=0&&(e.lpT-=dt)<=0&&d<400&&d>80){e.lpT=rnd(4,6);e.leap={sx:e.x,sy:e.y,tx:P.x,ty:P.y,t:0,T:.9};TL.push({x:P.x,y:P.y,r:78,t:.9,T:.9,dmg:e.dmg*1.3});sfx('dash')}
@@ -1100,6 +1158,7 @@ function update(dt){
       e.wt-=dt;if(e.wt<=0){e.wt=rnd(2,4.5);e.tx=e.hx+rnd(-110,110);e.ty=e.hy+rnd(-110,110)}
       const tx=e.tx-e.x,ty=e.ty-e.y,tdd=Math.hypot(tx,ty);if(tdd>5){e.x+=tx/tdd*sp*.35*dt;e.y+=ty/tdd*sp*.35*dt}
     }
+    if(e.zi===10&&!e.dg&&!e.boss&&e.type!=='runner'&&e.aggro&&(e.lavaT=(e.lavaT==null?2.5:e.lavaT)-dt)<=0){e.lavaT=3.2;if(HZ.length<40)HZ.push({x:e.x,y:e.y,r:34,t:3,dmg:e.dmg*.18,tick:.4})}
     if(e.aff==='fire'&&e.aggro&&(e.fireT-=dt)<=0){e.fireT=.8;if(HZ.length<40)HZ.push({x:e.x,y:e.y,r:40,t:4,dmg:e.dmg*.22,tick:0})}
     e.x+=e.kbx*dt;e.y+=e.kby*dt;const f=Math.pow(.01,dt);e.kbx*=f;e.kby*=f;
     const z=e.dg?DG:ZONES[e.zi],zm=e.dg?0:(e.aggro||e.ret?280:0);e.x=clamp(e.x,z.x-zm+e.r,z.x+z.w+zm-e.r);e.y=clamp(e.y,z.y-zm+e.r,z.y+z.h+zm-e.r);
@@ -1141,7 +1200,7 @@ function update(dt){
   if(!P.dead)for(const c of CHESTS)if(Math.hypot(P.x-c.x,P.y-c.y)<75&&!chestOpened(c.id))openChest(c);
   if(SV.intro){evtT-=dt;if(!EVT&&evtT<=0)startEvent();
     if(EVT){EVT.t-=dt;if(EVT.k==='coin'){EVT.ct=(EVT.ct||0)-dt;if(EVT.ct<=0){EVT.ct=.22;COINS.push({x:P.x+rnd(-380,380),y:P.y+rnd(-380,380),h:700,v:Math.round(8+SV.lv*3),t:25})}}
-      if(EVT.t<=0){toast(`世界事件「${EVT.n}」結束了`);EVT=null;evtT=rnd(150,230)}}}
+      if(EVT.t<=0){if(EVT.k==='gold'&&!EVT.caught){EN.forEach(e=>{if(e.gold&&!e.dead)e._rm=1});toast('金球精靈跑掉了……下次再抓！')}else toast(`世界事件「${EVT.n}」結束了`);EVT=null;evtT=rnd(150,230)}}}
 
   // areas
   for(const a of AR){a.t-=dt;a.tt-=dt;
@@ -1351,7 +1410,8 @@ function ledTex(){const c=document.createElement('canvas');c.width=2048;c.height
   const t=new THREE.CanvasTexture(c);t.wrapS=THREE.RepeatWrapping;return t}
 function jumboDraw(){if(!JUMBO)return;const c=JUMBO.c,g=c.getContext('2d');g.fillStyle='#07080d';g.fillRect(0,0,256,128);g.strokeStyle='#ffd34d';g.lineWidth=4;g.strokeRect(2,2,252,124);
   g.textAlign='center';g.textBaseline='middle';
-  if(duel){g.font='bold 16px sans-serif';g.fillStyle='#ffd34d';g.fillText('練等王',64,22);g.fillStyle='#ff8a9a';g.fillText(TEAMS[duel.rv.tm||0].n,192,22);
+  if(duel&&duel.three){g.font='bold 18px sans-serif';g.fillStyle='#ffd34d';g.fillText('三分球大賽',128,22);g.font='bold 54px sans-serif';g.fillStyle='#ffffff';g.fillText(String(duel.me),128,70);g.font='bold 15px sans-serif';g.fillStyle='#43e0c6';g.fillText(`第 ${Math.min(5,duel.spot+1)}/5 點・剩 ${Math.max(0,Math.ceil(duel.t))} 秒`,128,112)}
+  else if(duel){g.font='bold 16px sans-serif';g.fillStyle='#ffd34d';g.fillText('練等王',64,22);g.fillStyle='#ff8a9a';g.fillText(TEAMS[duel.rv.tm||0].n,192,22);
     g.font='bold 54px sans-serif';g.fillStyle='#ffffff';g.fillText(String(duel.me),64,72);g.fillText(String(duel.ai),192,72);g.fillStyle='#ffd34d';g.fillText(':',128,70);
     g.font='bold 15px sans-serif';g.fillStyle='#43e0c6';g.fillText(`${Math.max(0,Math.ceil(duel.t))} 秒`,128,112)}
   else{g.font='bold 26px sans-serif';g.fillStyle='#ffd34d';g.fillText('練等王職籃館',128,48);g.font='bold 16px sans-serif';g.fillStyle='#ffffff';g.fillText('找鬥牛大叔挑戰 1 對 1',128,88)}
@@ -1397,7 +1457,7 @@ function hoop3(x,z,s){ // s=+1 hoop faces +x
   scene.add(mesh(G.box,mat('#ff5a1a'),x+s*.06,4.6,z,.02,.55,.75));
   const rim=new THREE.Mesh(new THREE.TorusGeometry(.42,.05,8,24),mat('#ff5a1a'));rim.rotation.x=Math.PI/2;rim.position.set(x+s*.55,4.2,z);scene.add(rim);
   const net=new THREE.Mesh(new THREE.CylinderGeometry(.42,.28,.65,12,1,true),new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,transparent:true,opacity:.8}));net.position.set(x+s*.55,3.86,z);scene.add(net);return rim}
-let starPts=null,snowPts=null;
+let starPts=null,snowPts=null,emberPts=null;
 function buildWorld(){
   const cxw=(WB.x0+WB.x1)/2*U,czw=(WB.y0+WB.y1)/2*U;
   flat(cxw,czw,(WB.x1-WB.x0)*U+260,(WB.y1-WB.y0)*U+260,mat('#4d8748'),0);
@@ -1438,6 +1498,11 @@ function buildWorld(){
       [[w*.2,h+2],[w*.8,-2],[-2.5,h*.3]].forEach(([a,b])=>scene.add(mesh(G.sph,mat('#ffffff'),x+a,0,y+b,3,.8,1.6)))}
     if(d==='desert'){scene.add(mesh(G.pyr,mat('#c9944a'),cxz,5.5,y-14,10,11,10));scene.add(mesh(G.pyr,mat('#b98a45'),cxz+16,3.5,y-11,6,7,6));
       [[-3,3],[-3,h-3],[w+3,3],[w+3,h-3],[w*.33,-3],[w*.66,-3]].forEach(([a,b])=>{scene.add(mesh(G.cyl,mat('#e8cf9a'),x+a,2.6,y+b,.55,5.2,.55));scene.add(mesh(G.box,mat('#c9a86a'),x+a,5.3,y+b,1.5,.4,1.5))})}
+    if(d==='volcano'){scene.add(mesh(G.cone,mat('#3b2a24'),cxz,9,y-24,20,18,20));scene.add(mesh(G.cone,mat('#4a3228'),cxz+22,6,y-18,12,12,12));
+      {const gl=mesh(G.sph,new THREE.MeshBasicMaterial({color:0xff6a1a}),cxz,17.4,y-24,2.4);scene.add(gl);TORCH.push(gl)}
+      const lm=new THREE.MeshBasicMaterial({color:0xff5a1a});[[x-6,czz,4,h+10],[x+w+6,czz,4,h+10],[cxz,y+h+6,w+16,4]].forEach(([a,b,ww,dd])=>flat(a,b,ww,dd,lm,.03));
+      [[-4,4],[w+4,h-5],[w*.3,h+4],[w*.75,-4],[-4,h-6],[w+4,6]].forEach(([a,b],k)=>{const r=mesh(G.sph,mat('#2a1e1a'),x+a,.6,y+b,1.4+hsh(k,5),1+hsh(k,6),1.3);scene.add(r);
+        const gl=mesh(G.sph,new THREE.MeshBasicMaterial({color:0xffa040}),x+a,1.5+hsh(k,6),y+b,.35);scene.add(gl);TORCH.push(gl)})}
     if(d==='space'){const nm=new THREE.MeshBasicMaterial({color:0x53f3ff});[[cxz,y,w,.15],[cxz,y+h,w,.15]].forEach(([a,b,l])=>scene.add(mesh(G.box,nm,a,.12,b,l,.2,.2)));[[x,czz],[x+w,czz]].forEach(([a,b])=>scene.add(mesh(G.box,nm,a,.12,b,.2,.2,h)));
       scene.add(mesh(G.sph,mat('#ff7a4a'),x+w+30,24,y-20,9));const ring=new THREE.Mesh(new THREE.TorusGeometry(14,.5,6,48),mat('#ffd0a8'));ring.position.set(x+w+30,24,y-20);ring.rotation.x=1.2;scene.add(ring);
       scene.add(mesh(G.sph,mat('#9bc8ff'),x-25,16,y+h+10,4))}
@@ -1450,12 +1515,14 @@ function buildWorld(){
     const beam=new THREE.Mesh(G.cyl,new THREE.MeshBasicMaterial({color:0xffd34d,transparent:true,opacity:.22,depthWrite:false}));beam.scale.set(.55,16,.55);beam.position.y=8;g.add(beam);
     g.userData={lid,beam};scene.add(g);c.g=g});
   ZONES.forEach((z,zi)=>{const n=npcPos(z);const a=avatar({skin:SKINS[zi%5],hair:'#555',jersey:z.npcCol,shorts:'#2b2b33',cap:'#1a1008',whistle:1,s:1.05});a.position.set(n.x*U,0,n.y*U);NPCA.push(a)});
-  ['lei','shadow','stone','star'].forEach(k=>{const z=ZONES[LEG[k].zi];const a=avatar(Object.assign({s:1.1},SPK[k].look));a.position.set((z.x+165)*U,0,(z.y+70)*U);a.visible=false;LEGA[k]=a});
+  ['lei','shadow','stone','star','lotus'].forEach(k=>{const z=ZONES[LEG[k].zi];const a=avatar(Object.assign({s:1.1},SPK[k].look));a.position.set((z.x+165)*U,0,(z.y+70)*U);a.visible=false;LEGA[k]=a});
   // stars + snow
   const sg=new THREE.BufferGeometry(),sp=new Float32Array(900*3);for(let i=0;i<900;i++){const v=new THREE.Vector3(rnd(-1,1),rnd(.05,1),rnd(-1,1)).normalize().multiplyScalar(300);sp.set([v.x,v.y,v.z],i*3)}
   sg.setAttribute('position',new THREE.BufferAttribute(sp,3));starPts=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1.4,fog:false}));starPts.visible=false;scene.add(starPts);
   const ng=new THREE.BufferGeometry(),np=new Float32Array(500*3);for(let i=0;i<500;i++)np.set([rnd(-30,30),rnd(0,18),rnd(-30,30)],i*3);
   ng.setAttribute('position',new THREE.BufferAttribute(np,3));snowPts=new THREE.Points(ng,new THREE.PointsMaterial({color:0xffffff,size:.18}));snowPts.visible=false;scene.add(snowPts);
+  const eg=new THREE.BufferGeometry(),ep=new Float32Array(260*3);for(let i=0;i<260;i++)ep.set([rnd(-30,30),rnd(0,16),rnd(-30,30)],i*3);
+  eg.setAttribute('position',new THREE.BufferAttribute(ep,3));emberPts=new THREE.Points(eg,new THREE.PointsMaterial({color:0xff8a3d,size:.22}));emberPts.visible=false;scene.add(emberPts);
 }
 const WAVES=[],NPCA=[],LEGA={},TORCH=[],SPA=[];let rivalAv=null,petAv=null,petAvK=null;
 function petModel(k){const p=PETS[k],c=p.col,g=new THREE.Group(),b=new THREE.Group();g.add(b);
@@ -1471,6 +1538,9 @@ function petModel(k){const p=PETS[k],c=p.col,g=new THREE.Group(),b=new THREE.Gro
   else if(k==='owl'){add(G.sph,c,0,.5,0,.36,.44,.34);add(G.sph,'#e8d8b8',0,.45,.18,.24,.3,.2);
     [-1,1].forEach(s=>{add(G.sph,'#ffffff',s*.13,.72,.27,.11);add(G.sph,'#111',s*.13,.72,.36,.05);add(G.pyr,'#5a4430',s*.18,.98,0,.08,.18,.08);const w=add(G.box,'#6e5236',s*.4,.52,0,.1,.42,.36);w.userData.wing=s})
     add(G.cone,'#ffb020',0,.6,.36,.06,.14,.06).rotation.x=Math.PI/2}
+  else if(k==='lizard'){add(G.box,c,0,.32,0,.42,.3,.86);add(G.box,c,0,.42,.56,.36,.3,.36);add(G.box,'#ffd34d',0,.3,.1,.3,.12,.6);
+    [-1,1].forEach(s=>{add(G.box,'#111',s*.12,.5,.74,.07,.07,.02);add(G.box,c,s*.26,.12,.26,.12,.24,.14);add(G.box,c,s*.26,.12,-.26,.12,.24,.14)});
+    add(G.box,c,0,.3,-.6,.22,.18,.4);add(G.box,'#ffb347',0,.32,-.92,.12,.12,.3);for(let q=0;q<4;q++)add(G.pyr,'#ffd34d',0,.55,.3-q*.25,.08,.16,.08)}
   else{add(G.sph,c,0,.36,0,.56,.3,.66);add(G.sph,'#2a5f33',0,.5,0,.4,.2,.48);add(G.box,'#ff7a1a',0,.6,0,.05,.04,.7);add(G.box,'#ff7a1a',0,.6,0,.6,.04,.05);
     add(G.sph,'#8bc34a',0,.38,.68,.2);[-1,1].forEach(s=>add(G.box,'#111',s*.08,.44,.84,.05,.05,.02));
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,z])=>add(G.box,'#8bc34a',a*.38,.12,z*.36,.18,.2,.2))}
@@ -1500,7 +1570,7 @@ const pv=new THREE.Vector3();
 function scr(x,y,z){pv.set(x,y,z).project(camera);if(pv.z>1||pv.z<-1)return null;return[(pv.x+1)/2*W,(1-pv.y)/2*H]}
 
 // ---- sky per venue ----
-const SKY={night:[0x1c1330,.45],space:[0x05040f,.4],snow:[0xdbe7f2,.95],desert:[0xf0c78a,.9],sky:[0xd2f0ff,1],beach:[0x7fd4ff,.95],arena:[0x6f86b8,.8]};
+const SKY={volcano:[0x4a2018,.7],night:[0x1c1330,.45],space:[0x05040f,.4],snow:[0xdbe7f2,.95],desert:[0xf0c78a,.9],sky:[0xd2f0ff,1],beach:[0x7fd4ff,.95],arena:[0x6f86b8,.8]};
 const tgtC=new THREE.Color();
 
 function render3d(dt){
@@ -1524,6 +1594,7 @@ function render3d(dt){
   tgtC.setHex(sk[0]);scene.background.lerp(tgtC,Math.min(1,dt*2));scene.fog.color.copy(scene.background);hemi.intensity+=(sk[1]-hemi.intensity)*Math.min(1,dt*2);sun.intensity=hemi.intensity*.85;
   starPts.visible=inDG||night||(!!z&&(z.deco==='space'||z.deco==='night'));starPts.position.copy(camera.position);
   snowPts.visible=!!z&&z.deco==='snow';if(snowPts.visible){const a=snowPts.geometry.attributes.position;for(let i=0;i<a.count;i++){let yy=a.getY(i)-dt*(2+(i%3));if(yy<0)yy+=18;a.setY(i,yy);a.setX(i,a.getX(i)+Math.sin(T+i)*dt*.3)}a.needsUpdate=true;snowPts.position.set(px,0,pz)}
+  emberPts.visible=!!z&&z.deco==='volcano';if(emberPts.visible){const a=emberPts.geometry.attributes.position;for(let i=0;i<a.count;i++){let yy=a.getY(i)+dt*(1.2+(i%4)*.5);if(yy>16)yy-=16;a.setY(i,yy);a.setX(i,a.getX(i)+Math.sin(T*2+i)*dt*.5)}a.needsUpdate=true;emberPts.position.set(px,0,pz)}
   for(const w of WAVES)w.position.y=.02+Math.sin(T*1.5)*.04;
   // player
   const lift=P.jumpT>0?Math.sin((1-P.jumpT/.35)*Math.PI)*.9:0;
@@ -1586,7 +1657,7 @@ function render3d(dt){
   SPECIAL.forEach((sp,k)=>{const a=SPA[k];if(!a)return;a.rotation.y=Math.atan2(P.x-sp.x,P.y-sp.y);pose(a,0,false,'idle');
     if(Math.hypot(P.x-sp.x,P.y-sp.y)<700&&li<40&&!duel&&!dun){const s=scr(sp.x*U,3.6,sp.y*U);if(s){const el=poolEl(lpool,'lbl',li++);el.style.display='';el.style.color='#fff';el.style.transform=`translate(${s[0]}px,${s[1]}px) translate(-50%,-100%)`;el.innerHTML=`<em>${sp.k==='duel'?'鬥':'門'}</em>${sp.n}`}}});
   TORCH.forEach((t,i)=>t.scale.setScalar(.4+Math.abs(Math.sin(T*7+i*1.7))*.15));
-  if(duel){const tm=duel.rv.tm||0;if(!rivalAv||rivalAv._tm!==tm){if(rivalAv)dispose(rivalAv);const T0=TEAMS[tm];rivalAv=avatar({skin:'#c68857',hair:'#1a1a1a',jersey:T0.c,shorts:T0.s,num:T0.num,numCol:T0.t,trim:T0.t,band:T0.t,shoe:T0.t,s:1.05});rivalAv._tm=tm}
+  if(duel&&!duel.three){const tm=duel.rv.tm||0;if(!rivalAv||rivalAv._tm!==tm){if(rivalAv)dispose(rivalAv);const T0=TEAMS[tm];rivalAv=avatar({skin:'#c68857',hair:'#1a1a1a',jersey:T0.c,shorts:T0.s,num:T0.num,numCol:T0.t,trim:T0.t,band:T0.t,shoe:T0.t,s:1.05});rivalAv._tm=tm}
     rivalAv.visible=true;const aa=duel.aact;rivalAv.position.set(duel.ax*U,duel.az*U,duel.ay*U);
     rivalAv.rotation.y=duel.poss==='ai'?Math.atan2(HOOP.x-duel.ax,HOOP.y-duel.ay):Math.atan2(P.x-duel.ax,P.y-duel.ay);
     if(aa)actPose(rivalAv,aa);
@@ -1596,6 +1667,7 @@ function render3d(dt){
     if(duel.poss==='ai'&&!aa&&!duel.shot&&duel._ad)armDribble(rivalAv,duel._ad);
     const s=scr(duel.ax*U,3.5,duel.ay*U);if(s&&li<44){const el=poolEl(lpool,'lbl',li++);el.style.display='';el.style.color='#ff6b80';el.style.transform=`translate(${s[0]}px,${s[1]}px) translate(-50%,-100%)`;el.innerHTML=duel.rv.n}}
   else if(rivalAv)rivalAv.visible=false;
+  pBall.material=ballMat(duel&&duel.three&&duel.ball===4?'#ffd34d':'#ff7a1a');
   arenaTick(dt);
   // other players in the lobby
   {const seen=new Set(),opPeer=MP.pvp&&MP.pvp.op?MP.pvp.op.peer:null;
@@ -1689,10 +1761,11 @@ function drawMini3(){
 function syncHud(){
   {const pv=MP.pvp,mb=$('modebar');mb.hidden=!(duel||dun||pv);$('exitB').hidden=!(duel||dun||pv);
    if(pv){const g=pv.g,mine=pv.host?'h':'g',on=esc((pv.op&&pv.op.presence&&pv.op.presence.n)||'對手');mb.innerHTML=pv.st==='wait'?`連線鬥牛　房號 <b>${esc(pv.code)}</b><br>${pv.host?'等朋友輸入房號加入…':'正在找房主…'}`:`連線鬥牛　你 <b>${g[mine]}</b> : <b>${g[mine==='h'?'g':'h']}</b> ${on}・剩 ${Math.max(0,Math.ceil(g.t))} 秒<br>${g.poss===mine?'你的球權：甩開防守按「出手」':'防守：靠近按「抄截」，對手起跳時按「跳」蓋火鍋'}`;$('atk').innerHTML=pv.st==='play'?(g.poss===mine?'出手':'抄截'):'等待'}
-   if(duel){const dd=Math.hypot(HOOP.x-P.x,HOOP.y-P.y),hot=duel.hotMe>=3?'・<b>手感發燙</b>':'';mb.innerHTML=`鬥牛　你 <b>${duel.me}</b> : <b>${duel.ai}</b> ${duel.rv.n}・剩 ${Math.max(0,Math.ceil(duel.t))} 秒・進攻 ${duel.clock>20?'-':Math.max(0,Math.ceil(duel.clock))} 秒${hot}<br>${duel.poss==='me'?(dd<95?'在籃下：按「灌籃」':dd<210?'靠近籃框：按「上籃」，或按「過人」晃開防守':duel.meter?'時機條跑到綠色時再按一次！':'按「投籃」開始時機條・按「過人」晃開防守'):'防守：靠近按「抄截」・「撲搶」衝過去搶・對手起跳時按「跳」蓋火鍋'}`;$('atk').innerHTML=duel.poss==='me'?(duel.pact?'…':dd<95?'灌籃':dd<210?'上籃':duel.meter?'放球':'投籃'):'抄截';const s0=$('sk0');s0.hidden=false;s0.classList.remove('lock');s0.style.setProperty('--pc','#43e0c6');s0.style.setProperty('--cd',Math.max(0,duel.mvCd/2.5));s0.innerHTML=`<span>${duel.poss==='me'?'過人':'撲搶'}</span><small>1</small>`}
+   if(duel&&duel.three){mb.innerHTML=`三分大賽　得分 <b>${duel.me}</b>・第 ${Math.min(5,duel.spot+1)}/5 個位置・第 ${duel.ball+1}/5 球${duel.ball===4?'（金色彩球 2 分）':''}・剩 ${Math.max(0,Math.ceil(duel.t))} 秒<br>${duel.meter?'時機條跑到綠色時再按一次！':'按「投籃」開始時機條'}`;$('atk').innerHTML=duel.pact||duel.shot?'…':duel.meter?'放球':'投籃'}
+   else if(duel){const dd=Math.hypot(HOOP.x-P.x,HOOP.y-P.y),hot=duel.hotMe>=3?'・<b>手感發燙</b>':'';mb.innerHTML=`鬥牛　你 <b>${duel.me}</b> : <b>${duel.ai}</b> ${duel.rv.n}・剩 ${Math.max(0,Math.ceil(duel.t))} 秒・進攻 ${duel.clock>20?'-':Math.max(0,Math.ceil(duel.clock))} 秒${hot}<br>${duel.poss==='me'?(dd<95?'在籃下：按「灌籃」':dd<210?'靠近籃框：按「上籃」，或按「過人」晃開防守':duel.meter?'時機條跑到綠色時再按一次！':'按「投籃」開始時機條・按「過人」晃開防守'):'防守：靠近按「抄截」・「撲搶」衝過去搶・對手起跳時按「跳」蓋火鍋'}`;$('atk').innerHTML=duel.poss==='me'?(duel.pact?'…':dd<95?'灌籃':dd<210?'上籃':duel.meter?'放球':'投籃'):'抄截';const s0=$('sk0');s0.hidden=false;s0.classList.remove('lock');s0.style.setProperty('--pc','#43e0c6');s0.style.setProperty('--cd',Math.max(0,duel.mvCd/2.5));s0.innerHTML=`<span>${duel.poss==='me'?'過人':'撲搶'}</span><small>1</small>`}
    if(false){mb.innerHTML=`${duel.poss==='me'?'你的球權：甩開防守按「出手」':'防守：靠近按「抄截」，對手起跳時按「跳」蓋火鍋'}`;$('atk').innerHTML=duel.poss==='me'?'出手':'抄截'}
    if(dun)mb.innerHTML=`地下城　第 <b>${dun.wave}</b> 波・本次擊倒 ${dun.kills}・最佳 ${st('dunBest')} 波`;
-   ['sk1','sk2','sk3'].forEach(id=>$(id).hidden=!!(duel||MP.pvp));$('sk0').hidden=!!MP.pvp;$('guide').hidden=!!(duel||dun||MP.pvp);if(duel||dun||MP.pvp)$('quest').hidden=true;else renderQuest()}
+   ['sk1','sk2','sk3'].forEach(id=>$(id).hidden=!!(duel||MP.pvp));$('sk0').hidden=!!MP.pvp||!!(duel&&duel.three);$('guide').hidden=!!(duel||dun||MP.pvp);if(duel||dun||MP.pvp)$('quest').hidden=true;else renderQuest()}
   $('online').textContent=MP.room?(MP.peers.length?`線上 ${MP.peers.length+1} 人・點我看`:'只有你在線上・點我'):'';
   {const eb=$('evtbar');eb.hidden=!EVT;if(EVT)eb.textContent=`世界事件・${EVT.n}　剩 ${Math.ceil(EVT.t)} 秒`+(EVT.zi!=null?`（${ZONES[EVT.zi].name}）`:'')}
   const mh=maxHp();$('lv').textContent=SV.lv;
@@ -1719,8 +1792,8 @@ let guideKey='';
 function renderGuide(){
   const zi=recZone(SV.lv),z=ZONES[zi],bossOk=SV.lv>=bossRec(z),here=curZone===zi;
   const key=`${SV.lv}|${here}|${SV.story}`;if(key===guideKey)return;guideKey=key;
-  const st=SV.story,sz=ZONES[Math.min(st,4)];
-  $('guide').innerHTML=(st<5?`<b class="main">主線 第 ${st+1} 章</b>擊倒${sz.name}的 ${sz.boss.n}（Lv ${sz.boss.lv}）<br>`:`<b class="main">主線完成</b>`)+
+  const st=SV.story,sz=ZONES.find(q=>q.ch===st);
+  $('guide').innerHTML=(sz?`<b class="main">主線 ${st<5?`第 ${st+1} 章`:'第二部'}</b>擊倒${sz.name}的 ${sz.boss.n}（Lv ${sz.boss.lv}）${st>=5&&SV.lv<sz.s?`・Lv ${sz.s} 開放`:''}<br>`:`<b class="main">主線全部完成</b>`)+
     `<b>練等建議・Lv ${SV.lv}</b>去${z.name}打${z.mob.n}（Lv ${z.mob.l[0]}–${z.mob.l[1]}）`+
     (bossOk?`<br>可挑戰王者 ${z.boss.n}（Lv ${z.boss.lv}）`:`<br>Lv ${bossRec(z)} 再挑戰王者 ${z.boss.n}`)+
     (here?'':'<br><u>點這裡看指南／傳送</u>');
@@ -1762,7 +1835,7 @@ function renderMenu(){
       h+=`<div class="it"><span class="dot" style="background:${p.col}"></span><div class="tx"><b>${p.n}</b><em>${p.desc}${own?`　精通 ${m}`:''}</em><div class="sklist">${sks}</div>${mb}</div>
       <button class="btn sm" data-pw="${k}" ${eq||(!own&&SV.coins<p.price)?'disabled':''}>${eq?'裝備中':own?'裝備':'$'+fmtN(p.price)}</button></div>`});
     h+=`</div><div class="hint">技能打中 +0.35、技能擊倒 +3，普通投籃打中 +0.05、擊倒 +0.4 精通，解鎖第 2、3 招；精通超過 100 後每 10 點技能傷害 +1%。技能按鈕外圈的金色進度就是離下一招還差多少。王者級對手有機率掉落球能力。</div>`;
-    h+=`<div class="pts" style="margin-top:16px"><span>傳奇球技</span><b>${SV.legends.length}/5</b></div><div class="list">`;
+    h+=`<div class="pts" style="margin-top:16px"><span>傳奇球技</span><b>${SV.legends.length}/${Object.keys(LEG).length}</b></div><div class="list">`;
     Object.entries(LEG).forEach(([k,l])=>{const got=has(k),who=k==='all'?'四位傳奇':SPK[k].w;
       h+=`<div class="it"><span class="dot" style="background:${got?l.col:'#444'}"></span><div class="tx"><b>${got?l.sk.n:'？？？'}</b><em>${got?`${who}傳授・被動：${l.pas}`:`擊倒${ZONES[l.zi].boss.n}後解鎖`}</em></div>
       ${got?`<button class="btn sm" data-leg="${k}" ${SV.leg===k?'disabled':''}>${SV.leg===k?'裝備中':'裝備'}</button>`:''}</div>`});
@@ -1877,12 +1950,13 @@ function openSpecial(sp){paused=true;atkHeld=false;joy.on=false;let h=`<div clas
   if(sp.k==='duel'){const rv=duelRival();h+=`<p>來場一對一鬥牛！先拿 7 分的人贏，限時 90 秒，三分線外進球算 2 分。</p>
     <p><b>進攻</b>：甩開對手再按「出手」，被貼身防守比較難進。<br><b>防守</b>：靠近對手按「抄截」；對手起跳投籃時按「跳」可以蓋火鍋。</p>
     <p>下一位對手：<b>${rv.n}</b>・你的戰績 ${st('duelWins')} 勝</p><div class="list"><button class="btn" id="sgo">跟電腦鬥牛</button></div>
+    <h2 style="margin-top:16px">三分球大賽</h2><p>站在 5 個位置各投 5 球，每個位置最後一顆是金色彩球（2 分），滿分 30 分。抓時機條出手，限時 75 秒，18 分以上送裝備。最佳紀錄 <b>${st('tpBest')}</b> 分</p><div class="list"><button class="btn alt" id="tpc">挑戰三分大賽</button></div>
     <h2 style="margin-top:16px">跟網友連線</h2>${MP.room?`<p>開房會拿到 4 位數房號，朋友在這裡輸入同一個房號就能跟你單挑（限時 120 秒）。連線戰績 ${st('pvpWins')} 勝</p>
     <div class="list"><button class="btn alt" id="pvpH">開房間</button><div class="it"><div class="tx"><input id="pvpC" inputmode="numeric" maxlength="4" placeholder="輸入房號" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid #ffffff33;background:#0006;color:var(--ink);font-size:16px"></div><button class="btn sm" id="pvpJ">加入</button></div></div>`:`<p>這個裝置目前無法連線。連線需要登入 Claude，而且要由遊戲擁有者邀請；用公開連結開啟的人只能跟電腦鬥牛。</p>`}`}
   else{const di=dunInfo();h+=`<p>地下城裡的敵人一波比一波強，每 5 波會出現魔王。死掉或離開就結束，撐越多波獎勵越好，3 波以上必得裝備。</p>
     <p>今天還能進去 <b>${3-di.runs}</b> 次・最佳紀錄 <b>${st('dunBest')}</b> 波</p><div class="list"><button class="btn" id="sgo" ${di.runs>=3?'disabled':''}>進入地下城</button></div>`}
   h+=`<button class="btn alt close" id="dc">離開</button>`;$('dlgc').innerHTML=h;$('dialog').hidden=false;
-  $('sgo').onclick=()=>sp.k==='duel'?startDuel():startDun();$('dc').onclick=closeAll;
+  $('sgo').onclick=()=>sp.k==='duel'?startDuel():startDun();$('dc').onclick=closeAll;{const tb=$('tpc');if(tb)tb.onclick=startThree}
   {const hb=$('pvpH'),jb=$('pvpJ');if(hb)hb.onclick=()=>pvpOpen(true,String(ri(1000,9999)));if(jb)jb.onclick=()=>pvpOpen(false,$('pvpC').value)}}
 function openNpc(){
   {const sp=specNear();if(sp){openSpecial(sp);return}}
@@ -1913,10 +1987,10 @@ let lbT=20,achT=2,last=performance.now(),hudT=0,saveT=0;
 const _le=new Set();function loopErr(w,e){const m=w+': '+(e&&e.message||e)+(e&&e.stack?' | '+String(e.stack).split('\n').slice(0,3).join(' ← '):'');if(_le.has(m))return;_le.add(m);console.error(m);try{window.dispatchEvent(new ErrorEvent('error',{message:m}))}catch(x){}}
 function loop(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
-  if(running){lbT-=dt;if(lbT<=0){lbT=60;lbSubmit()}}
-  if(running&&!paused)tutUpdate();
   requestAnimationFrame(loop);
-  try{if(running&&!paused){achT-=dt;if(achT<=0){achT=1;checkAch()}if(hitStop>0)hitStop-=dt;else update(dt);hudT-=dt;if(hudT<=0){syncHud();hudT=.08}saveT-=dt;if(saveT<=0){save();saveT=5;if(SV.intro)checkDaily()}}}catch(e){loopErr('update',e)}
+  if(running){lbT-=dt;if(lbT<=0){lbT=60;lbSubmit()}}
+  try{if(running&&!paused)tutUpdate();}catch(e){loopErr('tut',e)}
+  try{if(running&&!paused){achT-=dt;if(achT<=0){achT=1;checkAch();if(SV.story>=5&&!SV.p2&&!inScene&&!duel&&!dun&&!MP.pvp&&$('idle').hidden&&$('dialog').hidden&&$('menu').hidden){SV.p2=1;save();playScene(PART2,()=>{guideKey='';toast('新地圖「熔岩火山場」開放了！（選單 → 傳送）',1)})}}if(hitStop>0)hitStop-=dt;else update(dt);hudT-=dt;if(hudT<=0){syncHud();hudT=.08}saveT-=dt;if(saveT<=0){save();saveT=5;if(SV.intro)checkDaily()}}}catch(e){loopErr('update',e)}
   try{render3d(dt)}catch(e){loopErr('render',e)}
 }
 $('go').onclick=()=>{
