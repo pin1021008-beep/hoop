@@ -6,4 +6,4 @@
 - `build.py`：產生 GitHub Pages 用的 `index.html`（加上 Supabase）
 - `sb-shim.js`：用 Supabase 做排行榜、雲端存檔、多人連線
 - `sb-config.js`：Supabase 專案設定
-- `supabase.sql`：建立資料表與安全規則
+- `supabase.sql`、`supabase2.sql`：建立資料表、安全規則與免登入的寫入函式

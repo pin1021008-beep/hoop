@@ -5,10 +5,13 @@
   const cfg=window.SB_CONFIG;
   if(window.claude||!cfg||!cfg.url||!cfg.key)return;
   if(!window.supabase){window.addEventListener('load',()=>{try{window.dispatchEvent(new ErrorEvent('error',{message:'線上功能沒載入：supabase 程式庫下載失敗（可能被網路或 App 內建瀏覽器擋住）'}))}catch(x){}});return}
-  let sb;try{sb=window.supabase.createClient(cfg.url,cfg.key,{auth:{persistSession:true,autoRefreshToken:true}})}catch(e){console.warn('supabase init',e);return}
+  let sb;try{sb=window.supabase.createClient(cfg.url,cfg.key,{auth:{persistSession:false,autoRefreshToken:false}})}catch(e){console.warn('supabase init',e);return}
   const report=(w,e)=>{const m='線上功能連線失敗（'+w+'）：'+(e&&(e.message||e.msg||e.error_description||e.code)||e);window.HG_ONLINE_ERR=m;console.warn(m,e);try{window.dispatchEvent(new ErrorEvent('error',{message:m}))}catch(x){}};
-  const ready=(async()=>{try{const {data}=await sb.auth.getSession();if(data&&data.session)return data.session.user.id;
-      const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;return r.data.user.id}catch(e){report('登入',e);return null}})();
+  // 身分：不登入，每台裝置自己產生 id + 密鑰（存在 localStorage），寫入一律透過資料庫函式驗證密鑰
+  const ident=(()=>{let o=null;try{o=JSON.parse(localStorage.getItem('hgId')||'null')}catch(e){}
+    if(!o||!o.id||!o.s){const hex=n=>Array.from(crypto.getRandomValues(new Uint8Array(n)),b=>b.toString(16).padStart(2,'0')).join('');
+      const u=crypto.randomUUID?crypto.randomUUID():hex(4)+'-'+hex(2)+'-4'+hex(2).slice(1)+'-a'+hex(2).slice(1)+'-'+hex(6);o={id:u,s:hex(24)};try{localStorage.setItem('hgId',JSON.stringify(o))}catch(e){}}return o})();
+  const ready=Promise.resolve(ident.id);
   // 路徑對應：data/users/<id>/save → saves 表；board/<id> → board 表。內容存成 JSON 字串（欄位 j）。
   const target=p=>{let m=/^data\/users\/([^/]+)\/save$/.exec(p);if(m)return{tb:'saves',id:m[1]};m=/^board\/([^/]+)$/.exec(p);return m?{tb:'board',id:m[1]}:null};
   const boardSubs=new Set();let boardLimit=500,boardTimer=null;
@@ -17,9 +20,11 @@
     const docs=[];for(const r of data||[]){let d=null;try{d=JSON.parse(r.j)}catch(e){}if(d)docs.push({id:r.id,exists:true,data:()=>d})}
     boardSubs.forEach(s=>s.cb({docs}))}
   const docRef=p=>{const tg=target(p);return{
-    get:async()=>{if(!tg)return{exists:false,data:()=>null};const {data,error}=await sb.from(tg.tb).select('j').eq('id',tg.id).maybeSingle();if(error)throw error;
-      let d=null;try{d=data?JSON.parse(data.j):null}catch(e){}return{exists:!!d,id:tg.id,data:()=>d}},
-    set:async obj=>{if(!tg)throw new Error('bad path');const {error}=await sb.from(tg.tb).upsert({id:tg.id,j:JSON.stringify(obj),t:new Date().toISOString()});if(error){report('寫入'+tg.tb,error);throw error}
+    get:async()=>{if(!tg)return{exists:false,data:()=>null};let j=null;
+      if(tg.tb==='saves'){const {data,error}=await sb.rpc('hg_get_save',{p_id:ident.id,p_secret:ident.s});if(error){report('讀取存檔',error);throw error}j=data}
+      else{const {data,error}=await sb.from(tg.tb).select('j').eq('id',tg.id).maybeSingle();if(error)throw error;j=data&&data.j}
+      let d=null;try{d=j?JSON.parse(j):null}catch(e){}return{exists:!!d,id:tg.id,data:()=>d}},
+    set:async obj=>{if(!tg)throw new Error('bad path');if(tg.id!==ident.id)throw new Error('not owner');const {error}=await sb.rpc('hg_put',{p_tb:tg.tb,p_id:ident.id,p_secret:ident.s,p_j:JSON.stringify(obj)});if(error){report('寫入'+tg.tb,error);throw error}
       if(tg.tb==='board')setTimeout(loadBoard,300)}}};
   const dbApi={doc:p=>docRef(p),collection:c=>({doc:id=>docRef(c+'/'+id),limit:n=>({onSnapshot:(cb,err)=>{if(c!=='board'){if(err)err(new Error('unsupported'));return()=>{}}
     boardLimit=n;const s={cb,err};boardSubs.add(s);loadBoard();if(!boardTimer)boardTimer=setInterval(loadBoard,30000);return()=>boardSubs.delete(s)}})})};
