@@ -12,6 +12,10 @@ assert out.count(T0)==1 and out.count('</head>')==1
 out=out.replace('</head>',T0+'\n'+'<meta name="description" content="3D 籃球練等遊戲：打怪練等、學傳奇球星絕招、灌籃鬥牛、地下城、連線排行榜。手機點開就能玩，免下載。">\n<meta property="og:type" content="website">\n<meta property="og:title" content="籃球練等王 3D">\n<meta property="og:description" content="打怪練等・灌籃鬥牛・連線排行榜｜手機點開就能玩，免下載">\n<meta property="og:url" content="https://pin1021008-beep.github.io/hoop/">\n<meta property="og:image" content="https://pin1021008-beep.github.io/hoop/og.jpg">\n<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">\n<meta name="twitter:card" content="summary_large_image">\n<link rel="apple-touch-icon" href="icon.png"><link rel="icon" href="icon.png">\n<meta name="apple-mobile-web-app-title" content="籃球練等王">\n</head>',1)
 # HIDE_SC: GitHub 版每個人都自動上榜，不需要成績碼
 for a,b in [
+  ("""h+='<p class="sm">多人連線是 Claude 平台的規定：只有遊戲擁有者本人，或擁有者用 email 邀請、而且已登入 Claude 的人才能連線（受邀的人能不能連，由平台決定）。用公開連結打開的朋友沒辦法連線，只能自己玩、跟電腦鬥牛。另外要打開<b>同一個連結</b>、<b>同一時間</b>在線上才看得到彼此。</p>';""","""h+='<p class="sm">大家要<b>同一時間</b>在線上才看得到彼此。如果一直顯示無法連線，請確認網路後重新整理。</p>';"""),
+  ("這台裝置目前無法連線：用公開連結打開的人不能連線單挑","目前連不上伺服器，請確認網路後再試"),
+  ("""<p class="hint" style="text-align:left">這是 Claude 平台的規定：只有遊戲擁有者本人，或擁有者用 email 邀請、而且已登入 Claude 的人才能連線；用公開連結打開的朋友不能連線。兩個人還要打開同一個連結。</p>""","""<p class="hint" style="text-align:left">請確認網路後重新整理再試。</p>"""),
+  (""" {v:'2026-10-26',t:'修正說明：多人連線和連線單挑只有遊戲擁有者本人和受邀登入的人能用，用公開連結打開的朋友沒辦法連線。現在左上角會顯示「多人：無法連線」，點開會說明原因，鬥牛大叔那邊的說明也改正確了。'},\n""",""" {v:'2026-10-26',t:'新增「邀請朋友」：在開始畫面或選單「排行」按分享，朋友用你的連結進來送 5,000 金幣，他升到 Lv5 你也拿獎勵！'},\n"""),
   ("if(LB.off||!LB.db||LB.noWrite)h+=`<div class=\"it\"><div class=\"tx\"><b>成績碼</b>","if(false)h+=`<div class=\"it\"><div class=\"tx\"><b>成績碼</b>"),
   ('排行榜要在 Claude 裡開啟、並登入帳號才看得到。','排行榜連線中…如果一直沒出現，請確認網路後重新整理。'),
   ('這個裝置目前無法連線（需要登入，且由遊戲擁有者邀請）','目前連不上伺服器，請確認網路後再試'),
