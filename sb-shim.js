@@ -3,21 +3,23 @@
 // room.presence / onPeers / onConnection / join / leave（用 Supabase Realtime 的 presence）。
 (function(){
   const cfg=window.SB_CONFIG;
-  if(window.claude||!cfg||!cfg.url||!cfg.key||!window.supabase)return;
+  if(window.claude||!cfg||!cfg.url||!cfg.key)return;
+  if(!window.supabase){window.addEventListener('load',()=>{try{window.dispatchEvent(new ErrorEvent('error',{message:'線上功能沒載入：supabase 程式庫下載失敗（可能被網路或 App 內建瀏覽器擋住）'}))}catch(x){}});return}
   let sb;try{sb=window.supabase.createClient(cfg.url,cfg.key,{auth:{persistSession:true,autoRefreshToken:true}})}catch(e){console.warn('supabase init',e);return}
+  const report=(w,e)=>{const m='線上功能連線失敗（'+w+'）：'+(e&&(e.message||e.msg||e.error_description||e.code)||e);window.HG_ONLINE_ERR=m;console.warn(m,e);try{window.dispatchEvent(new ErrorEvent('error',{message:m}))}catch(x){}};
   const ready=(async()=>{try{const {data}=await sb.auth.getSession();if(data&&data.session)return data.session.user.id;
-      const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;return r.data.user.id}catch(e){console.warn('supabase auth',e);return null}})();
+      const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;return r.data.user.id}catch(e){report('登入',e);return null}})();
   // 路徑對應：data/users/<id>/save → saves 表；board/<id> → board 表。內容存成 JSON 字串（欄位 j）。
   const target=p=>{let m=/^data\/users\/([^/]+)\/save$/.exec(p);if(m)return{tb:'saves',id:m[1]};m=/^board\/([^/]+)$/.exec(p);return m?{tb:'board',id:m[1]}:null};
   const boardSubs=new Set();let boardLimit=500,boardTimer=null;
   async function loadBoard(){const {data,error}=await sb.from('board').select('id,j').order('t',{ascending:false}).limit(boardLimit);
-    if(error){boardSubs.forEach(s=>s.err&&s.err(error));return}
+    if(error){report('排行榜',error);boardSubs.forEach(s=>s.err&&s.err(error));return}
     const docs=[];for(const r of data||[]){let d=null;try{d=JSON.parse(r.j)}catch(e){}if(d)docs.push({id:r.id,exists:true,data:()=>d})}
     boardSubs.forEach(s=>s.cb({docs}))}
   const docRef=p=>{const tg=target(p);return{
     get:async()=>{if(!tg)return{exists:false,data:()=>null};const {data,error}=await sb.from(tg.tb).select('j').eq('id',tg.id).maybeSingle();if(error)throw error;
       let d=null;try{d=data?JSON.parse(data.j):null}catch(e){}return{exists:!!d,id:tg.id,data:()=>d}},
-    set:async obj=>{if(!tg)throw new Error('bad path');const {error}=await sb.from(tg.tb).upsert({id:tg.id,j:JSON.stringify(obj),t:new Date().toISOString()});if(error)throw error;
+    set:async obj=>{if(!tg)throw new Error('bad path');const {error}=await sb.from(tg.tb).upsert({id:tg.id,j:JSON.stringify(obj),t:new Date().toISOString()});if(error){report('寫入'+tg.tb,error);throw error}
       if(tg.tb==='board')setTimeout(loadBoard,300)}}};
   const dbApi={doc:p=>docRef(p),collection:c=>({doc:id=>docRef(c+'/'+id),limit:n=>({onSnapshot:(cb,err)=>{if(c!=='board'){if(err)err(new Error('unsupported'));return()=>{}}
     boardLimit=n;const s={cb,err};boardSubs.add(s);loadBoard();if(!boardTimer)boardTimer=setInterval(loadBoard,30000);return()=>boardSubs.delete(s)}})})};

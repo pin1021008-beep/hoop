@@ -1855,7 +1855,7 @@ function renderMenu(){
   if(tab==='rank'){
     const SK2=[['lv','等級'],['kills','擊倒數'],['duel','鬥牛勝場'],['dun','地下城']];
     h+=`<div class="tabs rtabs">${SK2.map(([k,n])=>`<button data-rs="${k}" aria-selected="${LB.sort===k}">${n}</button>`).join('')}</div>`;
-    if(LB.off||!LB.db||LB.noWrite)h+=`<div class="it"><div class="tx"><b>成績碼</b><em>沒辦法自動上榜？產生成績碼，用 LINE 傳給遊戲擁有者，他貼上就能幫你登記</em></div><button class="btn sm" id="scB">產生</button></div><textarea id="scT" readonly hidden rows="3" style="width:100%;margin:6px 0;border-radius:8px;background:#0006;color:var(--ink);border:1px solid #ffffff33;font-size:11px;padding:8px"></textarea>`;
+    if(false)h+=`<div class="it"><div class="tx"><b>成績碼</b><em>沒辦法自動上榜？產生成績碼，用 LINE 傳給遊戲擁有者，他貼上就能幫你登記</em></div><button class="btn sm" id="scB">產生</button></div><textarea id="scT" readonly hidden rows="3" style="width:100%;margin:6px 0;border-radius:8px;background:#0006;color:var(--ink);border:1px solid #ffffff33;font-size:11px;padding:8px"></textarea>`;
     if(LB.owner)h+=`<div class="it"><div class="tx"><b>幫朋友登記成績</b><em>貼上朋友傳來的成績碼</em><textarea id="scIn" rows="2" placeholder="HG-..." style="width:100%;margin-top:6px;border-radius:8px;background:#0006;color:var(--ink);border:1px solid #ffffff33;font-size:11px;padding:6px"></textarea></div><button class="btn sm" id="scGo">登記</button></div>`;
     if(LB.off||!LB.db)h+=`<div class="hint">排行榜連線中…如果一直沒出現，請確認網路後重新整理。</div>`;
     else{
