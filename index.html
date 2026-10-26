@@ -1,4 +1,15 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><title>籃球練等王 3D</title>
+<meta name="description" content="3D 籃球練等遊戲：打怪練等、學傳奇球星絕招、灌籃鬥牛、地下城、連線排行榜。手機點開就能玩，免下載。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="籃球練等王 3D">
+<meta property="og:description" content="打怪練等・灌籃鬥牛・連線排行榜｜手機點開就能玩，免下載">
+<meta property="og:url" content="https://pin1021008-beep.github.io/hoop/">
+<meta property="og:image" content="https://pin1021008-beep.github.io/hoop/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" href="icon.png"><link rel="icon" href="icon.png">
+<meta name="apple-mobile-web-app-title" content="籃球練等王">
+</head><body>
 <title>籃球練等王 3D</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Noto+Sans+TC:wght@500;700;900&display=swap">
@@ -206,6 +217,7 @@ button:focus-visible{outline:3px solid var(--xp);outline-offset:2px}
     <div class="news" id="news"></div>
     <div class="news" id="plc" hidden></div>
     <button class="btn" id="go">開始練等</button>
+    <button class="btn alt" id="invS" style="margin-top:8px">邀請朋友一起玩</button>
     <div class="hint">手機：左半邊拖曳移動、右半邊拖曳轉視角，右下按鈕投籃、跳、放技能<br>電腦：WASD 移動・滑鼠拖曳轉視角・滾輪拉近拉遠・J 投籃・空白鍵跳（跳起來可以躲球）・1–4 技能・E 對話・M 選單<br>進度會自動存在這台裝置上</div>
   </div>
 </div>
@@ -320,10 +332,11 @@ let hurtFx=0;
 const need=L=>Math.floor(40+L*L*3.2);
 
 // ---------- save ----------
-const defSave=()=>({lv:1,xp:0,coins:0,pts:0,st:{str:0,vit:0,shot:0,spd:0},pw:'none',own:['none'],mas:{none:0},quest:null,last:0,intro:0,story:0,legends:[],leg:null,inv:[],eq:{shoe:null,band:null,wrist:null},mute:false,tut:0,chests:null,nick:'',stats:{},ach:{},title:null,dun:null,pets:[],pet:null,petXp:{},p2:0});
+const defSave=()=>({lv:1,xp:0,coins:0,pts:0,st:{str:0,vit:0,shot:0,spd:0},pw:'none',own:['none'],mas:{none:0},quest:null,last:0,intro:0,story:0,legends:[],leg:null,inv:[],eq:{shoe:null,band:null,wrist:null},mute:false,tut:0,chests:null,nick:'',stats:{},ach:{},title:null,dun:null,pets:[],pet:null,petXp:{},ref:'',refGot:0,refPaid:[],p2:0});
 let SV=defSave();
 try{const s=JSON.parse(localStorage.getItem('hoopGrind')||'null');if(s&&s.lv)SV=Object.assign(defSave(),s)}catch(e){}
 if(SV.st&&SV.st.spd>100){SV.pts=(SV.pts||0)+SV.st.spd-100;SV._refund=SV.st.spd-100;SV.st.spd=100}
+{const m=/[?&]ref=([0-9a-f-]{36})/i.exec(location.search);if(m&&!SV.intro&&SV.lv<=1&&!SV.ref)SV.ref=m[1].toLowerCase()}
 var CS=null; // cloud save: the viewer's private db row (data/users/<id>/save), so progress survives cleared browser storage
 function save(){if(running)SV.seen=Date.now();try{localStorage.setItem('hoopGrind',JSON.stringify(SV))}catch(e){}if(CS)cloudSave(false)}
 const prog=v=>v&&typeof v==='object'?(Number(v.lv)||0)*1e9+(Number(v.xp)||0):-1;
@@ -759,7 +772,7 @@ const LB={db:null,me:null,rows:[],ready:false,off:false,noWrite:false,sort:'lv',
 function lbStats(){const d0=new Date();d0.setHours(0,0,0,0);const rows=LB.rows.filter(r=>typeof r.name==='string'&&r.name.trim());return{all:rows.length,today:rows.filter(r=>Number(r.t)>=d0.getTime()).length}}
 function showPlc(){const s=lbStats(),el=$('plc');if(!el)return;el.hidden=false;el.innerHTML=`<b>球場人氣</b>今天有 ${s.today} 位玩家來練等・總共 ${s.all} 位玩家`}
 async function lbSubmit(force){if(!LB.db||!LB.me||!SV.nick)return;
-  const row={name:SV.nick.slice(0,12),lv:SV.lv,xp:Math.floor(SV.xp),kills:st('kills'),duelWins:st('duelWins'),dunBest:st('dunBest'),title:SV.title||'',pw:SV.pw};
+  const row={name:SV.nick.slice(0,12),lv:SV.lv,xp:Math.floor(SV.xp),kills:st('kills'),duelWins:st('duelWins'),dunBest:st('dunBest'),title:SV.title||'',pw:SV.pw,ref:/^[0-9a-f-]{36}$/.test(SV.ref||'')?SV.ref:''};
   const sig=JSON.stringify(row)+dstr(new Date());if(!force&&sig===LB.lastSent)return;LB.lastSent=sig;
   try{await LB.db.doc('board/'+LB.me).set(Object.assign(row,{t:Date.now()}));LB.noWrite=false}catch(e){LB.noWrite=true}}
 // 成績碼：沒有寫入權限的玩家產生一串碼，遊戲擁有者貼上後幫他登記到排行榜（board/f_<id>）
@@ -789,6 +802,20 @@ const ACH=[
  {id:'gb10',n:'黃金收藏家',d:'抓到 10 隻金球精靈',k:'goldKills',v:10,c:60000},{id:'my1',n:'神話降臨',d:'撿到一件神話裝備',k:'myth',v:1,c:50000},
 ];
 const statV=k=>k==='lv'?SV.lv:k==='story'?SV.story:k==='pets'?SV.pets.length:k==='petMax'?Math.max(0,...SV.pets.map(petLv)):st(k);
+// ---------- 邀請朋友：分享連結（GitHub 版帶 ?ref=你的 id）；新玩家送 5000 金幣，朋友升到 Lv5 邀請人拿獎勵 ----------
+const GAME_URL='https://pin1021008-beep.github.io/hoop/';
+const refReward=()=>Math.max(20000,SV.lv*400);
+const refOn=()=>!!(window.HG_ONLINE&&LB.me);
+function invite(){const url=GAME_URL+(refOn()?'?ref='+encodeURIComponent(LB.me):''),text='來玩我做的 3D 籃球練等遊戲「籃球練等王」🏀 手機點開就能玩，不用下載'+(refOn()?'，用我的連結進來還送 5000 金幣！':'！');
+  if(navigator.share){navigator.share({title:'籃球練等王 3D',text,url}).then(()=>stAdd('invites')).catch(()=>{});return}
+  const all=text+'\n'+url;try{navigator.clipboard.writeText(all).then(()=>toast('邀請連結已複製，貼到 LINE 或 Threads 給朋友',1),()=>prompt('複製這個連結給朋友',url))}catch(e){toast(url)}}
+function refTick(){if(!running)return;
+  if(SV.ref&&!SV.refGot&&SV.intro){SV.refGot=1;SV.coins+=5000;banner('朋友邀請獎勵！','+5,000 金幣・升到 Lv5 還會幫邀請你的朋友拿獎勵');sfx('chest');save()}
+  if(!refOn()||!LB.rows.length)return;if(!Array.isArray(SV.refPaid))SV.refPaid=[];
+  for(const r of LB.rows){if(typeof r.ref!=='string'||r.ref!==LB.me||r.id===LB.me||Number(r.lv)<5||SV.refPaid.includes(r.id))continue;
+    SV.refPaid.push(r.id);if(SV.refPaid.length>300)SV.refPaid.shift();const c=refReward();SV.coins+=c;
+    banner('邀請成功！',`「${String(r.name||'朋友').slice(0,12)}」用你的連結升到 Lv5・+${fmtN(c)} 金幣`);sfx('legend');save();break}}
+const refCount=()=>refOn()?LB.rows.filter(r=>r.ref===LB.me&&r.id!==LB.me).length:0;
 function checkAch(){for(const a of ACH){if(SV.ach[a.id]||statV(a.k)<a.v)continue;SV.ach[a.id]=1;SV.coins+=a.c;
   banner(`成就解鎖：${a.n}`,`${a.d}・+${fmtN(a.c)} 金幣・獲得稱號`);toast(`成就「${a.n}」：+${fmtN(a.c)} 金幣`,1);sfx('legend');if(!SV.title)SV.title=a.id;save();break}}
 const AFF={fire:'火焰',ice:'冰霜',split:'分裂',fast:'疾風'};
@@ -1855,6 +1882,7 @@ function renderMenu(){
   if(tab==='rank'){
     const SK2=[['lv','等級'],['kills','擊倒數'],['duel','鬥牛勝場'],['dun','地下城']];
     h+=`<div class="tabs rtabs">${SK2.map(([k,n])=>`<button data-rs="${k}" aria-selected="${LB.sort===k}">${n}</button>`).join('')}</div>`;
+    h+=`<div class="it" style="border:1px solid var(--gold)"><div class="tx"><b>邀請朋友</b><em>${refOn()?`朋友用你的連結進來送 5,000 金幣；他升到 Lv5，你拿 ${fmtN(refReward())} 金幣・已邀請 ${refCount()} 人`:'把遊戲分享給朋友一起練等'}</em></div><button class="btn sm" id="invB">分享</button></div>`;
     if(false)h+=`<div class="it"><div class="tx"><b>成績碼</b><em>沒辦法自動上榜？產生成績碼，用 LINE 傳給遊戲擁有者，他貼上就能幫你登記</em></div><button class="btn sm" id="scB">產生</button></div><textarea id="scT" readonly hidden rows="3" style="width:100%;margin:6px 0;border-radius:8px;background:#0006;color:var(--ink);border:1px solid #ffffff33;font-size:11px;padding:8px"></textarea>`;
     if(LB.owner)h+=`<div class="it"><div class="tx"><b>幫朋友登記成績</b><em>貼上朋友傳來的成績碼</em><textarea id="scIn" rows="2" placeholder="HG-..." style="width:100%;margin-top:6px;border-radius:8px;background:#0006;color:var(--ink);border:1px solid #ffffff33;font-size:11px;padding:6px"></textarea></div><button class="btn sm" id="scGo">登記</button></div>`;
     if(LB.off||!LB.db)h+=`<div class="hint">排行榜連線中…如果一直沒出現，請確認網路後重新整理。</div>`;
@@ -1933,6 +1961,7 @@ function renderMenu(){
      try{navigator.clipboard.writeText(c).then(()=>toast('成績碼已複製，貼給遊戲擁有者',1),()=>toast('長按上面的文字複製'))}catch(e){toast('長按上面的文字複製')}}}
   {const b=$('scGo');if(b)b.onclick=()=>{const o=scRead($('scIn').value);if(!o){toast('成績碼看不懂，請確認整串都有貼上');return}
      scPost(o).then(r=>{toast(`已幫「${r.name}」登記：Lv ${r.lv}`,1);$('scIn').value=''},()=>toast('登記失敗：只有遊戲擁有者能幫忙登記'))}}
+  {const b=$('invB');if(b)b.onclick=invite}
   {const nb=$('nickB');if(nb)nb.onclick=()=>{const v=($('nick').value||'').trim().slice(0,12);if(!v){toast('先輸入暱稱');return}SV.nick=v;save();lbSubmit(true).then(()=>{toast(LB.noWrite?'沒有上榜權限':'已上榜！');renderMenu()})}}
   pn.querySelectorAll('[data-ttl]').forEach(b=>b.onclick=()=>{SV.title=b.dataset.ttl;save();renderMenu()});
   pn.querySelectorAll('[data-tps]').forEach(b=>b.onclick=()=>{const sp=SPECIAL.find(x=>x.k===b.dataset.tps);P.x=sp.x+60;P.y=sp.y+40;cam.x=P.x;cam.y=P.y;closeAll()});
@@ -1990,9 +2019,10 @@ function loop(now){
   requestAnimationFrame(loop);
   if(running){lbT-=dt;if(lbT<=0){lbT=60;lbSubmit()}}
   try{if(running&&!paused)tutUpdate();}catch(e){loopErr('tut',e)}
-  try{if(running&&!paused){achT-=dt;if(achT<=0){achT=1;checkAch();if(SV.story>=5&&!SV.p2&&!inScene&&!duel&&!dun&&!MP.pvp&&$('idle').hidden&&$('dialog').hidden&&$('menu').hidden){SV.p2=1;save();playScene(PART2,()=>{guideKey='';toast('新地圖「熔岩火山場」開放了！（選單 → 傳送）',1)})}}if(hitStop>0)hitStop-=dt;else update(dt);hudT-=dt;if(hudT<=0){syncHud();hudT=.08}saveT-=dt;if(saveT<=0){save();saveT=5;if(SV.intro)checkDaily()}}}catch(e){loopErr('update',e)}
+  try{if(running&&!paused){achT-=dt;if(achT<=0){achT=1;checkAch();refTick();if(SV.story>=5&&!SV.p2&&!inScene&&!duel&&!dun&&!MP.pvp&&$('idle').hidden&&$('dialog').hidden&&$('menu').hidden){SV.p2=1;save();playScene(PART2,()=>{guideKey='';toast('新地圖「熔岩火山場」開放了！（選單 → 傳送）',1)})}}if(hitStop>0)hitStop-=dt;else update(dt);hudT-=dt;if(hudT<=0){syncHud();hudT=.08}saveT-=dt;if(saveT<=0){save();saveT=5;if(SV.intro)checkDaily()}}}catch(e){loopErr('update',e)}
   try{render3d(dt)}catch(e){loopErr('render',e)}
 }
+$('invS').onclick=invite;
 $('go').onclick=()=>{
   $('start').hidden=true;$('hud').hidden=false;$('ctrl').hidden=false;running=true;
   requestAnimationFrame(()=>{resize()});
