@@ -244,6 +244,11 @@ button:focus-visible{outline:3px solid var(--xp);outline-offset:2px}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="fb-shim.js"></script>
 <script>
 (()=>{
 const cv=document.getElementById('c');let cx=document.createElement('canvas').getContext('2d');let r3ready=false;
@@ -612,7 +617,7 @@ function emote(i){MP.emo=EMOS[i]||null;MP.emoT=T;$('emoP').hidden=true;MP.sendT=
 // online duel
 function pvpRole(){return MP.pvp?(MP.pvp.host?'host':'guest'):''}
 async function pvpOpen(host,code){
-  if(!MP.room){toast('這個裝置目前無法連線（需要登入，且由遊戲擁有者邀請）');return}
+  if(!MP.room){toast('目前連不上伺服器，請確認網路後再試');return}
   if(duel||dun||MP.pvp)return;code=String(code||'').replace(/\D/g,'').slice(0,4);if(code.length!==4){toast('房號是 4 位數字');return}
   try{const r=await MP.room.join('duel-'+code);
     MP.pvp={r,code,host,st:'wait',g:{h:0,g:0,poss:'h',t:120,seq:0,ph:'wait',shot:null,ev:null},act:{seq:0,k:''},seen:0,seenEv:0,seenShot:0,seenSeq:-1,op:null,shotT:0,shotLocal:null,sid:0,eid:0,sendT:0,joinT:T,ox:0,oy:0,oz:0,of:0,omv:0,aw:0,res:null};
@@ -1772,7 +1777,7 @@ function renderMenu(){
     h+=`<div class="tabs rtabs">${SK2.map(([k,n])=>`<button data-rs="${k}" aria-selected="${LB.sort===k}">${n}</button>`).join('')}</div>`;
     if(LB.off||!LB.db||LB.noWrite)h+=`<div class="it"><div class="tx"><b>成績碼</b><em>沒辦法自動上榜？產生成績碼，用 LINE 傳給遊戲擁有者，他貼上就能幫你登記</em></div><button class="btn sm" id="scB">產生</button></div><textarea id="scT" readonly hidden rows="3" style="width:100%;margin:6px 0;border-radius:8px;background:#0006;color:var(--ink);border:1px solid #ffffff33;font-size:11px;padding:8px"></textarea>`;
     if(LB.owner)h+=`<div class="it"><div class="tx"><b>幫朋友登記成績</b><em>貼上朋友傳來的成績碼</em><textarea id="scIn" rows="2" placeholder="HG-..." style="width:100%;margin-top:6px;border-radius:8px;background:#0006;color:var(--ink);border:1px solid #ffffff33;font-size:11px;padding:6px"></textarea></div><button class="btn sm" id="scGo">登記</button></div>`;
-    if(LB.off||!LB.db)h+=`<div class="hint">排行榜要在 Claude 裡開啟、並登入帳號才看得到。</div>`;
+    if(LB.off||!LB.db)h+=`<div class="hint">排行榜連線中…如果一直沒出現，請確認網路後重新整理。</div>`;
     else{
       h+=`<div class="it"><div class="tx"><b>你的暱稱</b><input id="nick" maxlength="12" value="${esc(SV.nick)}" placeholder="系統先幫你取了暱稱，可以改成自己的" autocomplete="off"></div><button class="btn sm" id="nickB">${SV.nick?'更新':'上榜'}</button></div>`;
       {const s=lbStats();h+=`<div class="pts" style="margin-top:10px"><span>玩家人數</span><small style="color:var(--muted);font-weight:500">今天 ${s.today} 人・總共 ${s.all} 人</small></div>`}
