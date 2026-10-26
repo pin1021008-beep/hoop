@@ -243,6 +243,15 @@ button:focus-visible{outline:3px solid var(--xp);outline-offset:2px}
   </div>
 </div>
 
+<script>
+// 診斷：畫面出錯時把錯誤訊息顯示在畫面上，方便截圖回報
+(function(){const box=()=>{let d=document.getElementById('hgErr');if(!d){d=document.createElement('div');d.id='hgErr';d.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:99;background:#300c;color:#fff;font:12px/1.4 monospace;padding:8px 10px;border-radius:8px;border:1px solid #f66;max-height:40vh;overflow:auto;white-space:pre-wrap';(document.body||document.documentElement).appendChild(d)}return d};
+ const seen=new Set();const show=m=>{m=String(m).slice(0,300);if(seen.has(m)||seen.size>6)return;seen.add(m);const d=box();d.textContent+=(d.textContent?'\n':'')+'⚠ '+m+'\n（請截圖給 Claude）'};
+ window.addEventListener('error',e=>show((e.message||'error')+(e.filename?' @'+e.filename.split('/').pop()+':'+e.lineno:'')));
+ window.addEventListener('unhandledrejection',e=>{const r=e.reason;if(r&&/supabase|fetch|network|Failed to fetch|Load failed/i.test(String(r&&r.message||r)))return;show('promise: '+(r&&r.message||r))});
+ document.addEventListener('webglcontextlost',e=>show('3D 畫面被瀏覽器停掉了（記憶體不足）。請關掉其他分頁後重新整理。'),true);
+ window.addEventListener('load',()=>{setTimeout(()=>{try{const c=document.createElement('canvas');if(!(c.getContext('webgl2')||c.getContext('webgl')))show('這個瀏覽器目前無法使用 3D（WebGL）。請關掉其他分頁、或換 Safari/Chrome 重新打開。')}catch(e){}},500)})})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="sb-config.js"></script>
