@@ -244,11 +244,9 @@ button:focus-visible{outline:3px solid var(--xp);outline-offset:2px}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js"></script>
-<script src="fb-shim.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="sb-config.js"></script>
+<script src="sb-shim.js"></script>
 <script>
 (()=>{
 const cv=document.getElementById('c');let cx=document.createElement('canvas').getContext('2d');let r3ready=false;
@@ -1595,7 +1593,7 @@ function render3d(dt){
    for(const p of MP.peers){const pr=p.presence||{};if(!isFinite(Number(pr.x))||!isFinite(Number(pr.y))||p.peer===opPeer)continue;seen.add(p.peer);
      let o=MP.av.get(p.peer);if(!o){const hcol=['#3b6bff','#2fbf5b','#ff4d8d','#9b5cff','#ff7a1a','#43e0c6'][Math.abs([...p.peer].reduce((a,c)=>a*31+c.charCodeAt(0)|0,7))%6];
        o={a:avatar({skin:'#e0ac80',hair:'#2a2a2a',jersey:hcol,shorts:'#1d1d24',band:'#ffffff',shoe:'#ffffff',num:pnum(pr.lv,1)%100,numCol:'#fff',s:1.05}),x:Number(pr.x),y:Number(pr.y),w:0};MP.av.set(p.peer,o)}
-     const k=Math.min(1,dt*10);o.x+=(Number(pr.x)-o.x)*k;o.y+=(Number(pr.y)-o.y)*k;if(pr.mv)o.w+=dt*12;
+     const k=Math.min(1,dt*6);o.x+=(Number(pr.x)-o.x)*k;o.y+=(Number(pr.y)-o.y)*k;if(pr.mv)o.w+=dt*12;
      const far=Math.abs(o.x-P.x)>1600||Math.abs(o.y-P.y)>1600;o.a.visible=!far&&!pr.dead;if(!o.a.visible)continue;
      o.a.position.set(o.x*U,pnum(pr.z,0)*U,o.y*U);o.a.rotation.y=yawOf(pnum(pr.f,0));pose(o.a,o.w,!!pr.mv,pnum(pr.z,0)>10?'up':'walk');
      if(o.a.userData.band&&typeof pr.c==='string'&&/^#[0-9a-f]{6}$/i.test(pr.c))o.a.userData.band.material=mat(pr.c);
